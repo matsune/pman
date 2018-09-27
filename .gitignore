@@ -1,2 +1,4 @@
 *.o
 pmand/bin/pmand
+*.pid
+*.log

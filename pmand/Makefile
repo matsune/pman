@@ -5,7 +5,7 @@ SRCS = $(wildcard $(SRCDIR)/*.cpp)
 OBJS = $(SRCS:.cpp=.o)
 TARGET = bin/pmand
 
-all: $(TARGET)
+all: clean $(TARGET)
 
 $(TARGET): $(OBJS)
 	$(CXX) -o $@ $^

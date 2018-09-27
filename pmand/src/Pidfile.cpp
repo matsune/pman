@@ -16,6 +16,7 @@ int Pidfile::read()
   std::string str;
   getline(f, str);
   sscanf(str.data(), "%d", &pid);
+  f.close();
   return pid;
 }
 
