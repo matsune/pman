@@ -22,8 +22,8 @@ void Pmand::redirectLogfile()
 
   int log_fd = open(logFile.c_str(), O_RDWR|O_CREAT|O_APPEND, 0600);
   if (log_fd < 0) HANDLE_ERROR("open");
-  dup2(log_fd, fileno(stderr));
   dup2(log_fd, fileno(stdout));
+  dup2(log_fd, fileno(stderr));
 
   close(log_fd);
 }

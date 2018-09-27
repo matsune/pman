@@ -1,0 +1,3 @@
+[submodule "pmand/lib/inih"]
+	path = pmand/lib/inih
+	url = git@github.com:benhoyt/inih.git

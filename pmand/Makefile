@@ -5,13 +5,18 @@ SRCS = $(wildcard $(SRCDIR)/*.cpp)
 OBJS = $(SRCS:.cpp=.o)
 TARGET = bin/pmand
 
+INI_SRCDIR = lib/inih
+INI_SRCS = $(INI_SRCDIR)/ini.cpp \
+						$(INI_SRCDIR)/cpp/INIReader.cpp
+INI_OBJS = $(INI_SRCS:.cpp=.o)
+
 all: $(TARGET)
 
-$(TARGET): $(OBJS)
-	$(CXX) -o $@ $^
+$(TARGET): $(OBJS) $(INI_OBJS)
+	$(CXX) $(INCLUDES) -o $@ $^
 
 %.o: %.cpp
-	$(CXX) $(CXXFLAGS) -o $@ -c $<
+	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $@ -c $<
 
 clean:
-	$(RM) $(OBJS) $(TARGET)
+	$(RM) $(OBJS) $(INI_OBJS) $(TARGET)
