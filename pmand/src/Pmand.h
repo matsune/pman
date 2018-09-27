@@ -7,10 +7,11 @@ class Pmand {
 private:
   Pidfile pid_file;
   std::string log_file;
-  
+
   void set_redirect();
   void daemonize();
-  void register_signal();
+  void register_abrt();
+  void register_sigchld();
 
 public:
   Pmand(std::string file_name = "pmand.pid",
