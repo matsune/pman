@@ -7,6 +7,11 @@
 
 using namespace std;
 
+namespace {
+  volatile std::sig_atomic_t sig_status;
+}
+void signal_handler(int signal) { sig_status = signal; };
+
 void Pmand::set_redirect()
 {
   for (int i = getdtablesize(); i >= 0; --i) {
@@ -36,6 +41,11 @@ void Pmand::daemonize()
   set_redirect();
 }
 
+void Pmand::register_signal()
+{
+  std::signal(SIGINT|SIGTERM|SIGQUIT, signal_handler);
+}
+
 void Pmand::cleanup()
 {
   pid_file.remove();
@@ -50,11 +60,14 @@ int Pmand::run()
 
   daemonize();
   pid_file.write();
+  register_signal();
 
-  while (true) {
-    sleep(4);
+  while (!sig_status) {
+    cout << "." << flush;
+    sleep(3);
   }
 
   cleanup();
+  cout << "end" << endl;
   return 0;
 }
