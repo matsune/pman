@@ -9,6 +9,7 @@ class Pmand {
 private:
   PidFile pidFile;
   std::string logFile;
+  std::string dir;
   std::vector<Program *> programs;
 
   void redirectLogfile();
@@ -21,9 +22,8 @@ private:
   Program *getProgram(int pid);
 
 public:
-  Pmand(std::string pidFileName = "pmand.pid",
-        std::string logFileName = "pmand.log")
-    :pidFile(PidFile(pidFileName)), logFile(logFileName) {}
+  Pmand(std::string pidFile, std::string logFile, std::string dir)
+    : pidFile(PidFile(pidFile)), logFile(logFile), dir(dir) {}
   void cleanup();
   int run();
 };

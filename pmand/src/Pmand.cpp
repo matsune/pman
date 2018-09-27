@@ -37,7 +37,9 @@ void Pmand::daemonize()
   }
 
   umask(0);
-  // - TODO: if (chdir("/") < 0) handle_error("chdir");
+
+  if (chdir(dir.c_str()) < 0) HANDLE_ERROR("chdir");
+
   if (setsid() < 0) HANDLE_ERROR("setsid");
 
   redirectLogfile();
