@@ -2,14 +2,14 @@
 #include <string>
 #include <vector>
 
+#include "conf_parser.hpp"
 #include "pid_file.hpp"
 #include "program.hpp"
 
 class Pmand {
 private:
+  PmandConf conf;
   PidFile pidFile;
-  std::string logFile;
-  std::string dir;
   std::vector<Program *> programs;
 
   void redirectLogfile();
@@ -22,8 +22,8 @@ private:
   Program *getProgram(int pid);
 
 public:
-  Pmand(std::string pidFile, std::string logFile, std::string dir)
-    : pidFile(PidFile(pidFile)), logFile(logFile), dir(dir) {}
+  Pmand(PmandConf conf)
+    : conf(conf), pidFile(PidFile(conf.pidfile)) {}
   void cleanup();
   int run();
 };

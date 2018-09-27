@@ -1,18 +1,16 @@
 #include <iostream>
-#include "../lib/inih/cpp/INIReader.h"
+#include "conf_parser.hpp"
 #include "pmand.hpp"
 
 int main(int argc, char const *argv[])
 {
   std::string confFile = "pmand.conf";
-  INIReader reader(confFile);
-  if (reader.ParseError() < 0) {
+  ConfParser parser(confFile);
+  if (parser.isParseError()) {
     std::cerr << "Can't load conf file." << std::endl;
     return 1;
   }
-  std::string pidfile = reader.Get("pmand", "pidfile", "pmand.pid");
-  std::string logfile = reader.Get("pmand", "logfile", "pmand.log");
-  std::string dir     = reader.Get("pmand", "directory", "/tmp");
-  Pmand pmand(pidfile, logfile, dir);
+
+  Pmand pmand(parser.pmandConf());
   return pmand.run();
 }

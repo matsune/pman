@@ -20,7 +20,7 @@ void Pmand::redirectLogfile()
     close(i);
   }
 
-  int log_fd = open(logFile.c_str(), O_RDWR|O_CREAT|O_APPEND, 0600);
+  int log_fd = open(conf.logfile.c_str(), O_RDWR|O_CREAT|O_APPEND, 0600);
   if (log_fd < 0) HANDLE_ERROR("open");
   dup2(log_fd, fileno(stdout));
   dup2(log_fd, fileno(stderr));
@@ -38,7 +38,7 @@ void Pmand::daemonize()
 
   umask(0);
 
-  if (chdir(dir.c_str()) < 0) HANDLE_ERROR("chdir");
+  if (chdir(conf.dir.c_str()) < 0) HANDLE_ERROR("chdir");
 
   if (setsid() < 0) HANDLE_ERROR("setsid");
 
