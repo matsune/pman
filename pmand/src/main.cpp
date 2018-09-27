@@ -1,4 +1,4 @@
-#include "Pmand.h"
+#include "pmand.hpp"
 
 int main(int argc, char const *argv[])
 {

@@ -3,7 +3,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include "defines.h"
-#include "Pmand.h"
+#include "pmand.hpp"
 
 using namespace std;
 
@@ -14,13 +14,13 @@ namespace {
 void abrt_handler(int signal) { abrt_status = signal; };
 void sigchld_handler(int signal) { sigchld_status = signal; };
 
-void Pmand::set_redirect()
+void Pmand::redirectLogfile()
 {
   for (int i = getdtablesize(); i >= 0; --i) {
     close(i);
   }
 
-  int log_fd = open(log_file.c_str(), O_RDWR|O_CREAT|O_APPEND, 0600);
+  int log_fd = open(logFile.c_str(), O_RDWR|O_CREAT|O_APPEND, 0600);
   if (log_fd < 0) HANDLE_ERROR("open");
   dup2(log_fd, fileno(stderr));
   dup2(log_fd, fileno(stdout));
@@ -40,15 +40,15 @@ void Pmand::daemonize()
   // - TODO: if (chdir("/") < 0) handle_error("chdir");
   if (setsid() < 0) HANDLE_ERROR("setsid");
 
-  set_redirect();
+  redirectLogfile();
 }
 
-void Pmand::register_abrt()
+void Pmand::registerAbrt()
 {
   std::signal(SIGINT|SIGTERM|SIGQUIT, abrt_handler);
 }
 
-void Pmand::register_sigchld()
+void Pmand::registerSigchld()
 {
   struct sigaction sa;
   sa.sa_handler = &sigchld_handler;
@@ -57,45 +57,109 @@ void Pmand::register_sigchld()
   if (sigaction(SIGCHLD, &sa, 0) < 0) HANDLE_ERROR("sigaction");
 }
 
+void Pmand::handleSigchld()
+{
+  int killed_child_pid;
+  do {
+    killed_child_pid = waitpid(-1, 0, WNOHANG);
+    if (killed_child_pid > 0) {
+      Program *p = getProgram(killed_child_pid);
+      if (p) {
+        p->isRunning(false);
+        cout << "exited program pid " << killed_child_pid << endl;
+      }
+    }
+  } while (killed_child_pid > 0);
+}
+
+void Pmand::startProgram(Program *program)
+{
+  int child_pid;
+  switch (child_pid = fork()) {
+    case -1: HANDLE_ERROR("fork");
+    case 0:
+      {
+        int count = program->command().size();
+        char *args[count + 1];
+        for (int i = 0; i < count; i++) {
+          args[i] = (char *)program->command().at(i).c_str();
+        }
+        args[count] = NULL;
+        execv(args[0], args);
+        perror(program->name().c_str());
+        exit(1);
+      }
+    default:
+      program->isRunning(true);
+      program->pid(child_pid);
+      cout << "Start program " << program->name() << " pid: " << child_pid << endl;
+  }
+}
+
+void Pmand::startAllPrograms()
+{
+  for (auto program = programs.begin(); program != programs.end(); ++program) {
+    if (!(*program)->isRunning()) startProgram(*program);
+  }
+}
+
+Program *Pmand::getProgram(int pid)
+{
+  for (auto program = programs.begin(); program != programs.end(); ++program) {
+    if ((*program)->pid() == pid) return *program;
+  }
+  return NULL;
+}
+
 void Pmand::cleanup()
 {
-  pid_file.remove();
+  for (auto program = programs.begin(); program != programs.end(); ++program) {
+    if ((*program)->isRunning()) {
+      cout << "Kill child process pid: " << (*program)->pid() << endl;
+      kill((*program)->pid(), SIGKILL);
+    }
+    delete *program;
+  }
+
+  pidFile.remove();
 }
 
 int Pmand::run()
 {
-  if (pid_file.check()) {
+  if (pidFile.check()) {
     cerr << "pmand already exists" << endl;
     return 1;
   }
 
   daemonize();
-  pid_file.write();
-  register_abrt();
-  register_sigchld();
+  pidFile.write();
+  registerAbrt();
+  registerSigchld();
 
-  int child_pid;
-  switch (child_pid = fork()) {
-    case -1: HANDLE_ERROR("fork");
-    case 0:
-      sleep(10);
-      exit(1);
-    default:
-      cout << child_pid << endl;
-      break;
-  }
+  cout << "Start pmand" << endl;
+
+  programs.push_back(new Program("sleep program", {"/bin/sleep", "5"}));
+  programs.push_back(new Program("sub.sh", {"./sub.sh"}));
+  programs.push_back(new Program("ls", {"/bin/ls"}));
+  startAllPrograms();
 
   while (!abrt_status) {
+    for (auto program = programs.begin(); program != programs.end(); ++program) {
+      if ((*program)->isRunning()) {
+        cout << "running pid " << (*program)->pid() << endl;
+      }
+    }
     cout << "." << flush;
-    sleep(3);
+
+    sleep(2);
 
     if (sigchld_status) {
       sigchld_status = 0;
-      cout << "killed child" << endl;
+      handleSigchld();
     }
   }
 
   cleanup();
-  cout << "end" << endl;
+  cout << "End pmand" << endl;
   return 0;
 }

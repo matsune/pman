@@ -3,12 +3,12 @@
 #include <sys/types.h>
 #include <cstdio>
 #include <fstream>
-#include "Pidfile.h"
+#include "pid_file.hpp"
 
-int Pidfile::read()
+int PidFile::read()
 {
   std::ifstream f;
-  f.open(file_name);
+  f.open(fileName);
   if (f.fail()) {
     return 0;
   }
@@ -20,7 +20,7 @@ int Pidfile::read()
   return pid;
 }
 
-bool Pidfile::check()
+bool PidFile::check()
 {
   int pid = read();
 
@@ -33,14 +33,14 @@ bool Pidfile::check()
   return true;
 }
 
-void Pidfile::write()
+void PidFile::write()
 {
-  std::ofstream f(file_name);
+  std::ofstream f(fileName);
   f << getpid();
   f.close();
 }
 
-int Pidfile::remove()
+int PidFile::remove()
 {
-  return std::remove(file_name.c_str());
+  return std::remove(fileName.c_str());
 }
