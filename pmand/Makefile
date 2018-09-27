@@ -1,17 +1,17 @@
 CXX = g++
-CXXFLAGS = -O2 -Wall
-INCLUDES = -I./include
+CXXFLAGS = -O2 -Wall -std=c++11
 SRCDIR   = src
 SRCS = $(wildcard $(SRCDIR)/*.cpp)
 OBJS = $(SRCS:.cpp=.o)
+TARGET = bin/pmand
 
-all: clean bin/pmand
+all: $(TARGET)
 
-bin/pmand: $(OBJS)
+$(TARGET): $(OBJS)
 	$(CXX) -o $@ $^
 
 %.o: %.cpp
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -o $@ -c $<
+	$(CXX) $(CXXFLAGS) -o $@ -c $<
 
 clean:
-	$(RM) $(OBJS)
+	$(RM) $(OBJS) $(TARGET)
