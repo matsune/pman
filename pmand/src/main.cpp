@@ -13,6 +13,6 @@ int main(int argc, char const *argv[])
     return 1;
   }
 
-  Pmand pmand(parser.pmandConf());
+  Pmand pmand(parser.pmandConf(), parser.programConfs());
   return pmand.run();
 }

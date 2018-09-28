@@ -12,9 +12,9 @@ bool ConfParser::ParseError()
 PmandConf ConfParser::pmandConf()
 {
   return PmandConf {
-    reader.Get("pmand", "pidfile", "pmand.pid"),
-    reader.Get("pmand", "logfile", "pmand.log"),
-    reader.Get("pmand", "directory", "/tmp")
+    reader.Get(PMAND_SECTION, "pidfile", "pmand.pid"),
+    reader.Get(PMAND_SECTION, "logfile", "pmand.log"),
+    reader.Get(PMAND_SECTION, "directory", "/tmp")
   };
 }
 
@@ -23,17 +23,17 @@ set<string> ConfParser::programNames()
   set<string> sections = reader.GetSections();
   set<string> res;
 
-  string prefix = "program:";
+  int prefixLength = ((string)PROGRAM_PREFIX).length();
 
   // filter sections that starts with 'program:' prefix
-  std::copy_if(sections.begin(), sections.end(), std::inserter(res, res.end()), [&prefix](const string &value) {
-    return startsWith(value, prefix) && value.length() > prefix.length();
+  std::copy_if(sections.begin(), sections.end(), std::inserter(res, res.end()), [prefixLength](const string &value) {
+    return startsWith(value, PROGRAM_PREFIX) && value.length() > prefixLength;
   });
 
   // remove prefix
   for (set<string>::iterator it = res.begin(); it != res.end(); ++it) {
     string &str = (string &)*it;
-    str.erase(0, prefix.length());
+    str.erase(0, prefixLength);
   }
   return res;
 }
@@ -43,8 +43,9 @@ std::vector<ProgramConf> ConfParser::programConfs()
   set<string> names = programNames();
   vector<ProgramConf> res;
   for (set<string>::iterator it = names.begin(); it != names.end(); ++it) {
-    string logfile = reader.Get("programs:" + *it, "logfile", "aaa.log");
-    string command = reader.Get("programs:" + *it, "command", "");
+    string logfile = reader.Get(PROGRAM_PREFIX + *it, "logfile", "/dev/null");
+    string command = reader.Get(PROGRAM_PREFIX + *it, "command", "");
+
     vector<string> commands;
     split(command, commands, ' ');
     res.push_back(ProgramConf {

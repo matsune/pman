@@ -5,6 +5,9 @@
 #include <string>
 #include "../lib/inih/cpp/INIReader.h"
 
+#define PMAND_SECTION "pmand"
+#define PROGRAM_PREFIX "program:"
+
 struct PmandConf {
   std::string pidfile;
   std::string logfile;

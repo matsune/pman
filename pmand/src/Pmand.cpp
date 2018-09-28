@@ -15,6 +15,14 @@ namespace {
 void abrt_handler(int signal) { abrt_status = signal; };
 void sigchld_handler(int signal) { sigchld_status = signal; };
 
+Pmand::Pmand(PmandConf conf, std::vector<ProgramConf> programConfs)
+  : Pmand(conf)
+{
+  for (auto conf : programConfs) {
+    programs.push_back(Program(conf));
+  }
+}
+
 void Pmand::daemonize()
 {
   switch (fork()) {
@@ -61,43 +69,48 @@ void Pmand::handleSigchld()
   } while (killed_child_pid > 0);
 }
 
-void Pmand::startProgram(Program *program)
+void Pmand::startProgram(Program &program)
 {
   int child_pid;
   switch (child_pid = fork()) {
     case -1: HANDLE_ERROR("fork");
     case 0:
       {
-        setRedirect(program->logfile());
+        setRedirect(program.logfile());
 
-        int count = program->command().size();
+        int count = program.command().size();
         char *args[count + 1];
         for (int i = 0; i < count; i++) {
-          args[i] = (char *)program->command().at(i).c_str();
+          args[i] = (char *)program.command().at(i).c_str();
         }
         args[count] = NULL;
         execv(args[0], args);
-        perror(program->name().c_str());
+        perror(program.name().c_str());
         exit(1);
       }
     default:
-      program->isRunning(true);
-      program->pid(child_pid);
-      cout << "Start program " << program->name() << " pid: " << child_pid << endl;
+      program.isRunning(true);
+      program.pid(child_pid);
+      cout << "Start program " << program.name() << " pid: " << child_pid << endl;
   }
 }
 
 void Pmand::startAllPrograms()
 {
   for (auto program = programs.begin(); program != programs.end(); ++program) {
-    if (!(*program)->isRunning()) startProgram(*program);
+    cout << "name: " << program->name() << endl
+         << "logfile: " << program->logfile() << endl;
+    for (auto s : program->command()) {
+      cout << "command: " << s << endl;
+    }
+    if (!program->isRunning()) startProgram(*program);
   }
 }
 
 Program *Pmand::getProgram(int pid)
 {
   for (auto program = programs.begin(); program != programs.end(); ++program) {
-    if ((*program)->pid() == pid) return *program;
+    if (program->pid() == pid) return &(* program);
   }
   return NULL;
 }
@@ -105,11 +118,11 @@ Program *Pmand::getProgram(int pid)
 void Pmand::cleanup()
 {
   for (auto program = programs.begin(); program != programs.end(); ++program) {
-    if ((*program)->isRunning()) {
-      cout << "Kill child process pid: " << (*program)->pid() << endl;
-      kill((*program)->pid(), SIGKILL);
+    if (program->isRunning()) {
+      cout << "Kill child process pid: " << program->pid() << endl;
+      kill(program->pid(), SIGKILL);
     }
-    delete *program;
+    // delete program;
   }
 
   pidFile.remove();
@@ -129,13 +142,12 @@ int Pmand::run()
 
   cout << "Start pmand" << endl;
 
-  programs.push_back(new Program(ProgramConf{"sleep", "1.log", {"/bin/sleep", "5"}}));
   startAllPrograms();
 
   while (!abrt_status) {
     for (auto program = programs.begin(); program != programs.end(); ++program) {
-      if ((*program)->isRunning()) {
-        cout << "running pid " << (*program)->pid() << endl;
+      if (program->isRunning()) {
+        cout << "running pid " << program->pid() << endl;
       }
     }
     cout << "." << flush;
