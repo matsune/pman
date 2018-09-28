@@ -18,6 +18,7 @@ struct ProgramConf {
   std::string name;
   std::string logfile;
   std::vector<std::string> command;
+  bool autorestart;
 };
 
 class ConfParser {

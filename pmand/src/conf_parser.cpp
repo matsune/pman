@@ -43,15 +43,18 @@ std::vector<ProgramConf> ConfParser::programConfs()
   set<string> names = programNames();
   vector<ProgramConf> res;
   for (set<string>::iterator it = names.begin(); it != names.end(); ++it) {
-    string logfile = reader.Get(PROGRAM_PREFIX + *it, "logfile", "/dev/null");
-    string command = reader.Get(PROGRAM_PREFIX + *it, "command", "");
+    const string section = PROGRAM_PREFIX + *it;
+    string logfile = reader.Get(section, "logfile", "/dev/null");
+    string command = reader.Get(section, "command", "");
+    bool autorestart = reader.GetBoolean(section, "autorestart", true);
 
     vector<string> commands;
     split(command, commands, ' ');
     res.push_back(ProgramConf {
       *it,
       logfile,
-      commands
+      commands,
+      autorestart
     });
   }
   return res;

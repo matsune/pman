@@ -1,5 +1,5 @@
 #!/bin/sh
-echo "start program"
-sleep 8
-echo "end program"
+echo "start sub.sh $1"
+sleep 5
+echo "end sub.sh $1"
 exit 0

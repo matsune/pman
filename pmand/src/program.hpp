@@ -18,6 +18,7 @@ public:
   bool isRunning() { return this->isRunning_; }
   int pid() { return this->pid_; }
   int execCount() { return this->execCount_; }
+  bool autorestart() { return this->conf.autorestart; }
   void started(int pid);
   void stopped();
 };

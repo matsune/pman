@@ -64,9 +64,10 @@ void Pmand::handleSigchld()
       program = getProgram(killedPid);
       if (program) {
         program->stopped();
-        LOG << "exited program pid " << killedPid << endl;
+        LOG << "exited program " << program->name() << " pid " << killedPid << endl;
 
-        startProgram(*program);
+        if (program->autorestart())
+          startProgram(*program);
       }
     }
   } while (killedPid > 0);
