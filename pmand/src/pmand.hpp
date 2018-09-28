@@ -12,7 +12,6 @@ private:
   PidFile pidFile;
   std::vector<Program *> programs;
 
-  void redirectLogfile();
   void daemonize();
   void registerAbrt();
   void registerSigchld();

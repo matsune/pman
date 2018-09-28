@@ -1,19 +1,19 @@
 #include <string>
 #include <vector>
+#include "conf_parser.hpp"
 
 class Program {
 private:
-  std::string name_;
-  std::vector<std::string> command_;
+  ProgramConf conf;
   bool isRunning_;
   int pid_;
 
 public:
-  Program(): name_(""), command_({}), isRunning_(false) {};
-  Program(std::string name, std::vector<std::string> command)
-    : name_(name), command_(command), isRunning_(false) {};
-  std::string name() { return this->name_; };
-  std::vector<std::string> command() { return this->command_; };
+  Program(ProgramConf conf)
+    : conf(conf), isRunning_(false), pid_(0) {};
+  std::string logfile() { return this->conf.logfile; };
+  std::string name() { return this->conf.name; };
+  std::vector<std::string> command() { return this->conf.command; };
   bool isRunning() { return this->isRunning_; };
   void isRunning(bool isRunning_) { this->isRunning_ = isRunning_; };
   int pid() { return this->pid_; };

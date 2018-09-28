@@ -3,6 +3,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include "defines.h"
+#include "util.hpp"
 #include "pmand.hpp"
 
 using namespace std;
@@ -13,20 +14,6 @@ namespace {
 }
 void abrt_handler(int signal) { abrt_status = signal; };
 void sigchld_handler(int signal) { sigchld_status = signal; };
-
-void Pmand::redirectLogfile()
-{
-  for (int i = getdtablesize(); i >= 0; --i) {
-    close(i);
-  }
-
-  int log_fd = open(conf.logfile.c_str(), O_RDWR|O_CREAT|O_APPEND, 0600);
-  if (log_fd < 0) HANDLE_ERROR("open");
-  dup2(log_fd, fileno(stdout));
-  dup2(log_fd, fileno(stderr));
-
-  close(log_fd);
-}
 
 void Pmand::daemonize()
 {
@@ -42,7 +29,7 @@ void Pmand::daemonize()
 
   if (setsid() < 0) HANDLE_ERROR("setsid");
 
-  redirectLogfile();
+  setRedirect(conf.logfile);
 }
 
 void Pmand::registerAbrt()
@@ -81,6 +68,8 @@ void Pmand::startProgram(Program *program)
     case -1: HANDLE_ERROR("fork");
     case 0:
       {
+        setRedirect(program->logfile());
+
         int count = program->command().size();
         char *args[count + 1];
         for (int i = 0; i < count; i++) {
@@ -140,9 +129,7 @@ int Pmand::run()
 
   cout << "Start pmand" << endl;
 
-  programs.push_back(new Program("sleep program", {"/bin/sleep", "5"}));
-  programs.push_back(new Program("sub.sh", {"./sub.sh"}));
-  programs.push_back(new Program("ls", {"/bin/ls"}));
+  programs.push_back(new Program(ProgramConf{"sleep", "1.log", {"/bin/sleep", "5"}}));
   startAllPrograms();
 
   while (!abrt_status) {
