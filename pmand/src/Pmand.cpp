@@ -98,11 +98,6 @@ void Pmand::startProgram(Program &program)
 void Pmand::startAllPrograms()
 {
   for (auto program = programs.begin(); program != programs.end(); ++program) {
-    cout << "name: " << program->name() << endl
-         << "logfile: " << program->logfile() << endl;
-    for (auto s : program->command()) {
-      cout << "command: " << s << endl;
-    }
     if (!program->isRunning()) startProgram(*program);
   }
 }
