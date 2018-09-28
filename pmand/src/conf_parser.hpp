@@ -1,5 +1,7 @@
 #pragma once
 
+#include <set>
+#include <vector>
 #include <string>
 #include "../lib/inih/cpp/INIReader.h"
 
@@ -9,6 +11,12 @@ struct PmandConf {
   std::string dir;
 };
 
+struct ProgramConf {
+  std::string name;
+  std::string logfile;
+  std::vector<std::string> command;
+};
+
 class ConfParser {
 private:
   INIReader reader;
@@ -16,6 +24,8 @@ private:
 public:
   ConfParser (std::string confFile)
     : reader(INIReader(confFile)) {};
-  bool isParseError();
+  bool ParseError();
   PmandConf pmandConf();
+  std::set<std::string> programNames();
+  std::vector<ProgramConf> programConfs();
 };

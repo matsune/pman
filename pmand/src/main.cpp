@@ -2,12 +2,14 @@
 #include "conf_parser.hpp"
 #include "pmand.hpp"
 
+using namespace std;
+
 int main(int argc, char const *argv[])
 {
-  std::string confFile = "pmand.conf";
+  string confFile = "pmand.conf";
   ConfParser parser(confFile);
-  if (parser.isParseError()) {
-    std::cerr << "Can't load conf file." << std::endl;
+  if (parser.ParseError()) {
+    cerr << "Can't load conf file." << endl;
     return 1;
   }
 
