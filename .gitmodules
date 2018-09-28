@@ -1,3 +1,6 @@
 [submodule "lib/inih"]
 	path = lib/inih
 	url = git@github.com:matsune/inih.git
+[submodule "lib/cmdline"]
+	path = lib/cmdline
+	url = git@github.com:tanakh/cmdline.git
