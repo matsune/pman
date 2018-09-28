@@ -66,8 +66,13 @@ void Pmand::handleSigchld()
         program->stopped();
         LOG << "exited program " << program->name() << " pid " << killedPid << endl;
 
-        if (program->autorestart())
-          startProgram(*program);
+        if (program->autorestart()) {
+          if (program->tooShort()) {
+            LOG << "The process exited too quickly." << endl;
+          } else {
+            startProgram(*program);
+          }
+        }
       }
     }
   } while (killedPid > 0);
