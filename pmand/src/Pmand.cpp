@@ -3,7 +3,6 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include "defines.h"
-#include "util.hpp"
 #include "pmand.hpp"
 
 using namespace std;
@@ -65,7 +64,7 @@ void Pmand::handleSigchld()
       program = getProgram(killedPid);
       if (program) {
         program->stopped();
-        cout << "exited program pid " << killedPid << endl;
+        LOG << "exited program pid " << killedPid << endl;
 
         startProgram(*program);
       }
@@ -94,9 +93,9 @@ void Pmand::startProgram(Program &program)
       }
     default:
       if (program.execCount() == 0) {
-        cout << "[Start] ";
+        LOG << "[Start] ";
       } else {
-        cout << "[Restart] ";
+        LOG << "[Restart] ";
       }
       program.started(child_pid);
       cout << "program " << program.name() << " pid: " << child_pid << endl;
@@ -122,7 +121,7 @@ void Pmand::cleanup()
 {
   for (auto program = programs.begin(); program != programs.end(); ++program) {
     if (program->isRunning()) {
-      cout << "Kill child process pid: " << program->pid() << endl;
+      LOG << "Kill child process pid: " << program->pid() << endl;
       kill(program->pid(), SIGKILL);
     }
   }
@@ -142,7 +141,7 @@ int Pmand::run()
   registerAbrt();
   registerSigchld();
 
-  cout << "Start pmand" << endl;
+  LOG << "Start pmand" << endl;
 
   startAllPrograms();
 
@@ -156,6 +155,6 @@ int Pmand::run()
   }
 
   cleanup();
-  cout << "End pmand" << endl;
+  LOG << "End pmand" << endl;
   return 0;
 }

@@ -1,10 +1,14 @@
+#pragma once
 #include <csignal>
 #include <string>
 #include <vector>
 
+#include "util.hpp"
 #include "conf_parser.hpp"
 #include "pid_file.hpp"
 #include "program.hpp"
+
+#define LOG std::cout << "[" << nowString() << "] "
 
 class Pmand {
 private:

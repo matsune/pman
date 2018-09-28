@@ -46,3 +46,11 @@ size_t split(const std::string &txt, std::vector<std::string> &strs, char ch)
 
   return strs.size();
 }
+
+std::string nowString(const char* format)
+{
+  time_t t = time(0) ;
+  char cstr[128] ;
+  strftime( cstr, sizeof(cstr), format, localtime(&t) ) ;
+  return cstr ;
+}
