@@ -22,7 +22,7 @@ private:
 
 public:
   Pmand(PmandConf conf)
-    : conf(conf), pidFile(PidFile(conf.pidfile)) {};
+    : conf(conf), pidFile(PidFile(conf.pidfile)) {}
   Pmand(PmandConf conf, std::vector<ProgramConf> programConfs);
   void cleanup();
   int run();

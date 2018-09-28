@@ -6,7 +6,7 @@ private:
 
 public:
   PidFile (std::string fileName)
-    : fileName(fileName) {};
+    : fileName(fileName) {}
   int read();
   bool check();
   void write();

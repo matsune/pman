@@ -1,5 +1,5 @@
 #!/bin/sh
 echo "start program"
-sleep 3
+sleep 8
 echo "end program"
 exit 0

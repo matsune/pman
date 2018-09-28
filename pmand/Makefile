@@ -20,3 +20,6 @@ $(TARGET): $(OBJS) $(INI_OBJS)
 
 clean:
 	$(RM) $(OBJS) $(INI_OBJS) $(TARGET)
+
+clean-log:
+	$(RM) *.log

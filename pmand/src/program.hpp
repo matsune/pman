@@ -7,15 +7,17 @@ private:
   ProgramConf conf;
   bool isRunning_;
   int pid_;
+  int execCount_;
 
 public:
   Program(ProgramConf conf)
-    : conf(conf), isRunning_(false), pid_(0) {};
-  std::string logfile() { return this->conf.logfile; };
-  std::string name() { return this->conf.name; };
-  std::vector<std::string> command() { return this->conf.command; };
-  bool isRunning() { return this->isRunning_; };
-  void isRunning(bool isRunning_) { this->isRunning_ = isRunning_; };
-  int pid() { return this->pid_; };
-  void pid(int id) { this->pid_ = id; };
+    : conf(conf), isRunning_(false), pid_(0), execCount_(0) {}
+  std::string logfile() { return this->conf.logfile; }
+  std::string name() { return this->conf.name; }
+  std::vector<std::string> command() { return this->conf.command; }
+  bool isRunning() { return this->isRunning_; }
+  int pid() { return this->pid_; }
+  int execCount() { return this->execCount_; }
+  void started(int pid);
+  void stopped();
 };

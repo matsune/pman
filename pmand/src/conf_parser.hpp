@@ -26,7 +26,7 @@ private:
 
 public:
   ConfParser (std::string confFile)
-    : reader(INIReader(confFile)) {};
+    : reader(INIReader(confFile)) {}
   bool ParseError();
   PmandConf pmandConf();
   std::set<std::string> programNames();

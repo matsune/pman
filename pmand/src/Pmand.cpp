@@ -56,17 +56,21 @@ void Pmand::registerSigchld()
 
 void Pmand::handleSigchld()
 {
-  int killed_child_pid;
+  Program *program;
+  int killedPid;
+
   do {
-    killed_child_pid = waitpid(-1, 0, WNOHANG);
-    if (killed_child_pid > 0) {
-      Program *p = getProgram(killed_child_pid);
-      if (p) {
-        p->isRunning(false);
-        cout << "exited program pid " << killed_child_pid << endl;
+    killedPid = waitpid(-1, 0, WNOHANG);
+    if (killedPid > 0) {
+      program = getProgram(killedPid);
+      if (program) {
+        program->stopped();
+        cout << "exited program pid " << killedPid << endl;
+
+        startProgram(*program);
       }
     }
-  } while (killed_child_pid > 0);
+  } while (killedPid > 0);
 }
 
 void Pmand::startProgram(Program &program)
@@ -89,9 +93,13 @@ void Pmand::startProgram(Program &program)
         exit(1);
       }
     default:
-      program.isRunning(true);
-      program.pid(child_pid);
-      cout << "Start program " << program.name() << " pid: " << child_pid << endl;
+      if (program.execCount() == 0) {
+        cout << "[Start] ";
+      } else {
+        cout << "[Restart] ";
+      }
+      program.started(child_pid);
+      cout << "program " << program.name() << " pid: " << child_pid << endl;
   }
 }
 
@@ -117,7 +125,6 @@ void Pmand::cleanup()
       cout << "Kill child process pid: " << program->pid() << endl;
       kill(program->pid(), SIGKILL);
     }
-    // delete program;
   }
 
   pidFile.remove();
@@ -140,18 +147,11 @@ int Pmand::run()
   startAllPrograms();
 
   while (!abrt_status) {
-    for (auto program = programs.begin(); program != programs.end(); ++program) {
-      if (program->isRunning()) {
-        cout << "running pid " << program->pid() << endl;
-      }
-    }
-    cout << "." << flush;
-
     sleep(2);
 
     if (sigchld_status) {
-      sigchld_status = 0;
       handleSigchld();
+      sigchld_status = 0;
     }
   }
 
