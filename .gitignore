@@ -1,4 +1,4 @@
 *.o
-pmand/bin/pmand
+bin/pman
 *.pid
 *.log

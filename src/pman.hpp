@@ -10,9 +10,9 @@
 
 #define LOG std::cout << "[" << nowString() << "] "
 
-class Pmand {
+class Pman {
 private:
-  PmandConf conf;
+  PmanConf conf;
   PidFile pidFile;
   std::vector<Program> programs;
 
@@ -25,9 +25,9 @@ private:
   Program *getProgram(int pid);
 
 public:
-  Pmand(PmandConf conf)
+  Pman(PmanConf conf)
     : conf(conf), pidFile(PidFile(conf.pidfile)) {}
-  Pmand(PmandConf conf, std::vector<ProgramConf> programConfs);
+  Pman(PmanConf conf, std::vector<ProgramConf> programConfs);
   void cleanup();
   int run();
 };

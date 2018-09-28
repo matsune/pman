@@ -9,12 +9,12 @@ bool ConfParser::ParseError()
   return reader.ParseError() < 0;
 }
 
-PmandConf ConfParser::pmandConf()
+PmanConf ConfParser::pmanConf()
 {
-  return PmandConf {
-    reader.Get(PMAND_SECTION, "pidfile", "pmand.pid"),
-    reader.Get(PMAND_SECTION, "logfile", "pmand.log"),
-    reader.Get(PMAND_SECTION, "directory", "/tmp")
+  return PmanConf {
+    reader.Get(PMAN_SECTION, "pidfile", "pman.pid"),
+    reader.Get(PMAN_SECTION, "logfile", "pman.log"),
+    reader.Get(PMAN_SECTION, "directory", "/tmp")
   };
 }
 

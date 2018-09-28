@@ -3,7 +3,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include "defines.h"
-#include "pmand.hpp"
+#include "pman.hpp"
 
 using namespace std;
 
@@ -14,15 +14,15 @@ namespace {
 void abrt_handler(int signal) { abrt_status = signal; };
 void sigchld_handler(int signal) { sigchld_status = signal; };
 
-Pmand::Pmand(PmandConf conf, std::vector<ProgramConf> programConfs)
-  : Pmand(conf)
+Pman::Pman(PmanConf conf, std::vector<ProgramConf> programConfs)
+  : Pman(conf)
 {
   for (auto conf : programConfs) {
     programs.push_back(Program(conf));
   }
 }
 
-void Pmand::daemonize()
+void Pman::daemonize()
 {
   switch (fork()) {
     case -1: HANDLE_ERROR("fork");
@@ -39,12 +39,12 @@ void Pmand::daemonize()
   setRedirect(conf.logfile);
 }
 
-void Pmand::registerAbrt()
+void Pman::registerAbrt()
 {
   std::signal(SIGINT|SIGTERM|SIGQUIT, abrt_handler);
 }
 
-void Pmand::registerSigchld()
+void Pman::registerSigchld()
 {
   struct sigaction sa;
   sa.sa_handler = &sigchld_handler;
@@ -53,7 +53,7 @@ void Pmand::registerSigchld()
   if (sigaction(SIGCHLD, &sa, 0) < 0) HANDLE_ERROR("sigaction");
 }
 
-void Pmand::handleSigchld()
+void Pman::handleSigchld()
 {
   Program *program;
   int killedPid;
@@ -78,7 +78,7 @@ void Pmand::handleSigchld()
   } while (killedPid > 0);
 }
 
-void Pmand::startProgram(Program &program)
+void Pman::startProgram(Program &program)
 {
   int child_pid;
   switch (child_pid = fork()) {
@@ -108,14 +108,14 @@ void Pmand::startProgram(Program &program)
   }
 }
 
-void Pmand::startAllPrograms()
+void Pman::startAllPrograms()
 {
   for (auto program = programs.begin(); program != programs.end(); ++program) {
     if (!program->isRunning()) startProgram(*program);
   }
 }
 
-Program *Pmand::getProgram(int pid)
+Program *Pman::getProgram(int pid)
 {
   for (auto program = programs.begin(); program != programs.end(); ++program) {
     if (program->pid() == pid) return &(* program);
@@ -123,7 +123,7 @@ Program *Pmand::getProgram(int pid)
   return NULL;
 }
 
-void Pmand::cleanup()
+void Pman::cleanup()
 {
   for (auto program = programs.begin(); program != programs.end(); ++program) {
     if (program->isRunning()) {
@@ -135,10 +135,10 @@ void Pmand::cleanup()
   pidFile.remove();
 }
 
-int Pmand::run()
+int Pman::run()
 {
   if (pidFile.check()) {
-    cerr << "pmand already exists" << endl;
+    cerr << "pman already exists" << endl;
     return 1;
   }
 
@@ -147,7 +147,7 @@ int Pmand::run()
   registerAbrt();
   registerSigchld();
 
-  LOG << "Start pmand" << endl;
+  LOG << "Start pman" << endl;
 
   startAllPrograms();
 
@@ -161,6 +161,6 @@ int Pmand::run()
   }
 
   cleanup();
-  LOG << "End pmand" << endl;
+  LOG << "End pman" << endl;
   return 0;
 }

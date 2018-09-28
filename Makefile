@@ -3,7 +3,7 @@ CXXFLAGS = -O2 -Wall -std=c++11
 SRCDIR   = src
 SRCS = $(wildcard $(SRCDIR)/*.cpp)
 OBJS = $(SRCS:.cpp=.o)
-TARGET = bin/pmand
+TARGET = bin/pman
 
 INI_SRCDIR = lib/inih
 INI_SRCS = $(INI_SRCDIR)/ini.cpp \

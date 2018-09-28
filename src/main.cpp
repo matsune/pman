@@ -1,18 +1,18 @@
 #include <iostream>
 #include "conf_parser.hpp"
-#include "pmand.hpp"
+#include "pman.hpp"
 
 using namespace std;
 
 int main(int argc, char const *argv[])
 {
-  string confFile = "pmand.conf";
+  string confFile = "pman.conf";
   ConfParser parser(confFile);
   if (parser.ParseError()) {
     cerr << "Can't load conf file." << endl;
     return 1;
   }
 
-  Pmand pmand(parser.pmandConf(), parser.programConfs());
-  return pmand.run();
+  Pman pman(parser.pmanConf(), parser.programConfs());
+  return pman.run();
 }

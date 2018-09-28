@@ -5,10 +5,10 @@
 #include <string>
 #include "../lib/inih/cpp/INIReader.h"
 
-#define PMAND_SECTION "pmand"
+#define PMAN_SECTION "pman"
 #define PROGRAM_PREFIX "program:"
 
-struct PmandConf {
+struct PmanConf {
   std::string pidfile;
   std::string logfile;
   std::string dir;
@@ -29,7 +29,7 @@ public:
   ConfParser (std::string confFile)
     : reader(INIReader(confFile)) {}
   bool ParseError();
-  PmandConf pmandConf();
+  PmanConf pmanConf();
   std::set<std::string> programNames();
   std::vector<ProgramConf> programConfs();
 };
