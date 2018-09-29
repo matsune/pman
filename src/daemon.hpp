@@ -10,7 +10,7 @@
 
 #define LOG std::cout << "[" << nowString() << "] "
 
-class Pman {
+class Daemon {
 private:
   PmanConf conf;
   PidFile pidFile;
@@ -25,9 +25,9 @@ private:
   Program *getProgram(int pid);
 
 public:
-  Pman(PmanConf conf)
+  Daemon(PmanConf conf)
     : conf(conf), pidFile(PidFile(conf.pidfile)) {}
-  Pman(PmanConf conf, std::vector<ProgramConf> programConfs);
+  Daemon(PmanConf conf, std::vector<ProgramConf> programConfs);
   void cleanup();
   int run();
 };

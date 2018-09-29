@@ -2,7 +2,7 @@
 #include <string.h>
 #include "cmd_parser.hpp"
 #include "conf_parser.hpp"
-#include "pman.hpp"
+#include "daemon.hpp"
 #include "../lib/cmdline/cmdline.h"
 
 using namespace std;
@@ -15,8 +15,8 @@ int runServer(string conf)
     return 1;
   }
 
-  Pman pman(parser.pmanConf(), parser.programConfs());
-  return pman.run();
+  Daemon daemon(parser.pmanConf(), parser.programConfs());
+  return daemon.run();
 }
 
 int runClient(CommandType c)
