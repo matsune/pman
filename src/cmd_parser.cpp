@@ -6,7 +6,7 @@
 #include "cmd_parser.hpp"
 #include "../lib/cmdline/cmdline.h"
 
-Command commands[3] = {
+Command commands[] = {
   Command{
     E_DAEMON,
     "daemon",
@@ -21,6 +21,11 @@ Command commands[3] = {
     E_START,
     "start",
     "start program"
+  },
+  Command{
+    E_START_ALL,
+    "start all",
+    "start all programs that not running"
   }
 };
 
@@ -66,31 +71,23 @@ CmdParser::CmdParser(int argc, char **argv)
     }
   }
 
-  // switch (this->type_) {
-  //   case E_DAEMON:
-  //     break;
-  //   default:
-  //     break;
-  // }
   parser.add<string>("conf", 'c', "conf path", false, "./pman.conf");
-
   parser.parse_check(new_argc, new_argv);
-  free(c);
-
-  // switch (this->type_) {
-  //   case E_DAEMON:
-  //     break;
-  //   default:
-  //     break;
-  // }
   this->conf_ = parser.get<string>("conf");
+
+  free(c);
 }
 
 CommandType CmdParser::parseType(int argc, char *argv[])
 {
   if (argc < 2) return E_UNKNOWN;
   for (auto c : commands) {
-    if (c.name == argv[1]) return c.type;
+    if (c.name == argv[1]) {
+      if (c.type == E_START && argc > 2 && strcmp(argv[2], "all") == 0) {
+        return E_START_ALL;
+      }
+      return c.type;
+    }
   }
   return E_UNKNOWN;
 }

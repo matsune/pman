@@ -4,7 +4,8 @@ enum CommandType {
   E_UNKNOWN,
   E_DAEMON,
   E_STATUS,
-  E_START
+  E_START,
+  E_START_ALL
 };
 
 struct Command {

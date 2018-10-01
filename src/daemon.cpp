@@ -111,7 +111,11 @@ void Daemon::startProgram(Program &program)
 void Daemon::startAllPrograms()
 {
   for (auto program = programs.begin(); program != programs.end(); ++program) {
-    if (!program->isRunning()) startProgram(*program);
+    if (program->isRunning()) {
+      LOG << "program " << program->name() << " is already running." << endl;
+    } else {
+      startProgram(*program);
+    }
   }
 }
 
@@ -154,7 +158,9 @@ int Daemon::run()
   while (!abrt_status) {
     sock.poll(1);
     if (sock.hasEvents()) {
-      std::cout << sock.read() << std::endl;
+      string msg = sock.read();
+      std::cout << msg << std::endl;
+      if (msg == "startAll") startAllPrograms();
     }
 
     if (sigchld_status) {
@@ -162,7 +168,7 @@ int Daemon::run()
       sigchld_status = 0;
     }
   }
-  
+
   sock.unlink();
   cleanup();
   LOG << "End pman" << endl;

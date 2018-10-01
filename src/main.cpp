@@ -17,8 +17,17 @@ int runServer(ConfParser parser)
 int runClient(ConfParser parser, CommandType c)
 {
   SockClient client(parser.pmanConf().sockfile);
-  if (client.connect() < 0) std::cerr << "connection error: " << parser.pmanConf().sockfile << std::endl;
-  client.send("startAll");
+  if (client.connect() < 0)
+    std::cerr << "connection error: " << parser.pmanConf().sockfile << std::endl;
+
+  switch (c) {
+    case E_START_ALL:
+      client.send("startAll");
+      break;
+    default:
+      break;
+  }
+
   return 0;
 }
 
