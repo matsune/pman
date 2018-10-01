@@ -1,5 +1,6 @@
 #include <string>
 #include <iostream>
+#include <sstream>
 #include "util.hpp"
 #include "defines.h"
 #include "cmd_parser.hpp"

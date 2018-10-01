@@ -1,5 +1,4 @@
 #include <string>
-#include "../lib/cmdline/cmdline.h"
 
 enum Command {
   E_DAEMON,

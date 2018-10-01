@@ -4,7 +4,6 @@
 #include "conf_parser.hpp"
 #include "daemon.hpp"
 #include "sock_client.hpp"
-#include "../lib/cmdline/cmdline.h"
 
 using namespace std;
 
