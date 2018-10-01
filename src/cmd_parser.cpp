@@ -1,93 +1,178 @@
 #include <string>
-#include <sstream>
 #include <iostream>
-#include <unistd.h>
+#include "util.hpp"
 #include "defines.h"
 #include "cmd_parser.hpp"
-#include "../lib/cmdline/cmdline.h"
-
-Command commands[] = {
-  Command{
-    E_DAEMON,
-    "daemon",
-    "start server"
-  },
-  Command{
-    E_STATUS,
-    "status",
-    "show status"
-  },
-  Command{
-    E_START,
-    "start",
-    "start program"
-  },
-  Command{
-    E_START_ALL,
-    "start all",
-    "start all programs that not running"
-  }
-};
 
 using namespace std;
 
-CmdParser::CmdParser(int argc, char **argv)
+void CmdParser::parse()
 {
-  this->type_ = parseType(argc, argv);
-  cmdline::parser parser;
+  if (argc < 2) return;
 
-  if (this->type_ == E_UNKNOWN) {
-    parser.add("version", 'v', "show version");
-    string f = "[command]\n\ncommand:\n";
-    for (auto c: commands) {
-      f += "  " + c.name + "  \t" + c.description + "\n";
-    }
-    parser.footer(f);
-    parser.parse_check(argc, argv);
+  if (isVersion()) {
+    showVersion();
+    exit(0);
+  }
 
-    if (parser.exist("version")) {
-      cout << "pman version " << PMAN_VERSION << endl;
-      exit(0);
+  if (isHelp()) {
+    cout << usage() << endl;
+    exit(0);
+  }
+
+  parseOption();
+  if (!parseCommand()) {
+    return;
+  }
+  parseArgs();
+}
+
+bool CmdParser::hasNext()
+{
+  return cursor < (argc - 1);
+}
+
+bool CmdParser::match(const char *str)
+{
+  return strcmp(argv[cursor], str) == 0;
+}
+
+bool CmdParser::isOption()
+{
+  return isVersion() || isHelp();
+}
+
+void CmdParser::parseOption()
+{
+  if (!isOption()) return;
+
+  if (isVersion()) {
+    showVersion();
+  } else if (isHelp()) {
+    cout << usage() << endl;
+  }
+
+  exit(0);
+}
+
+bool CmdParser::isCommand()
+{
+  return match("status") || match("start") || match("stop");
+}
+
+// returns true if continue parsing
+bool CmdParser::parseCommand()
+{
+  if (!isCommand()) return true;
+
+  if (match("status")) {
+    this->command_ = E_STATUS;
+  } else if (match("start")) {
+    this->command_ = E_START;
+  } else if (match("stop")) {
+    this->command_ = E_STOP;
+  }
+
+  switch (this->command_) {
+    case E_START:
+    case E_STOP:
+      if (!hasNext()) {
+        // no program name
+        cerr << "requires program name" << endl << endl;
+        cerr << usage() << endl;
+        exit(1);
+      }
+      cursor++;
+
+      if (startsWith(argv[cursor], "-")) {
+        cerr << "invalid program name: " << argv[cursor] << endl;
+        exit(1);
+      }
+
+      if (match("all")) {
+        switch (this->command_) {
+          case E_START:
+            this->command_ = E_START_ALL;
+            break;
+          case E_STOP:
+            this->command_ = E_STOP_ALL;
+            break;
+          default:
+            break;
+        }
+      } else {
+        this->program_ = string(argv[cursor]);
+      }
+      break;
+    default:
+      break;
+  }
+
+
+  if (hasNext()) {
+    cursor++;
+    return true;
+  } else {
+    return false;
+  }
+}
+
+void CmdParser::parseArgs()
+{
+  for (;;) {
+    if (match("--conf") || match("-c")) {
+      parseConf();
+    } else {
+      cerr << "unknown option: " << argv[cursor] << endl << endl;
+      cerr << usage() << endl;
+      exit(1);
     }
-    cerr << parser.usage() << endl;
+
+    if (!hasNext()) break;
+
+    cursor++;
+  }
+}
+
+void CmdParser::parseConf()
+{
+  if (!hasNext()) {
+    cerr << "please pass conf file path after `--conf` or `-c`" << endl;
     exit(1);
   }
 
-  int new_argc = argc - 1;
-  char *new_argv[new_argc];
-
-  int len = strlen(argv[0]) + 1 + strlen(argv[1]) + 1;
-  char *c = (char *)malloc(sizeof(char) * len);
-  memset(c, 0, len);
-
-  for (int i = 0; i < new_argc; i++) {
-    if (i == 0) {
-      strcpy(c, argv[0]);
-      strcat(c, " ");
-      strcat(c, argv[1]);
-      new_argv[i] = c;
-    } else {
-      new_argv[i] = argv[i + 1];
-    }
-  }
-
-  parser.add<string>("conf", 'c', "conf path", false, "./pman.conf");
-  parser.parse_check(new_argc, new_argv);
-  this->conf_ = parser.get<string>("conf");
-
-  free(c);
+  cursor++;
+  this->conffile_ = string(argv[cursor]);
 }
 
-CommandType CmdParser::parseType(int argc, char *argv[])
+bool CmdParser::isVersion()
 {
-  if (argc < 2) return E_UNKNOWN;
-  for (auto c : commands) {
-    if (c.name == argv[1]) {
-      if (c.type == E_START && argc > 2 && strcmp(argv[2], "all") == 0) {
-        return E_START_ALL;
-      }
-      return c.type;
-    }
-  }
-  return E_UNKNOWN;
+  return match("--version") || match("-v");
+}
+
+bool CmdParser::isHelp()
+{
+  return match("--help") || match("-h");
+}
+
+void CmdParser::showVersion()
+{
+  cout << "pman version " << PMAN_VERSION << endl;
+}
+
+std::string CmdParser::usage()
+{
+  std::ostringstream os;
+  os << "usage: pman [--version | -v] [--help | -h]" << endl
+    << "\t    <command> [<args>]" << endl
+    << "command:" << endl
+    << "  status          \tshow status" << endl
+    << "  start <program> \tstart program" << endl
+    << "  start all       \tstart all programs that not running" << endl
+    << "  stop <program>  \tstop program" << endl
+    << "  stop all        \tstop all programs that running" << endl
+    << endl
+    << "args:" << endl
+    << "  --conf, -c <path>\tconfig file path" << endl;
+  return os.str();
 }
