@@ -149,17 +149,21 @@ int Daemon::run()
 
   LOG << "Start pman" << endl;
 
-  startAllPrograms();
+  SockServer sock(conf.sockfile);
 
   while (!abrt_status) {
-    sleep(2);
+    sock.poll(1);
+    if (sock.hasEvents()) {
+      std::cout << sock.read() << std::endl;
+    }
 
     if (sigchld_status) {
       handleSigchld();
       sigchld_status = 0;
     }
   }
-
+  
+  sock.unlink();
   cleanup();
   LOG << "End pman" << endl;
   return 0;

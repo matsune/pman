@@ -12,6 +12,7 @@ struct PmanConf {
   std::string pidfile;
   std::string logfile;
   std::string dir;
+  std::string sockfile;
 };
 
 struct ProgramConf {

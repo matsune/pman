@@ -14,7 +14,8 @@ PmanConf ConfParser::pmanConf()
   return PmanConf {
     reader.Get(PMAN_SECTION, "pidfile", "pman.pid"),
     reader.Get(PMAN_SECTION, "logfile", "pman.log"),
-    reader.Get(PMAN_SECTION, "directory", "/tmp")
+    reader.Get(PMAN_SECTION, "directory", "/tmp"),
+    reader.Get(PMAN_SECTION, "sockfile", "pman.sock"),
   };
 }
 

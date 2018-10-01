@@ -3,25 +3,22 @@
 #include "cmd_parser.hpp"
 #include "conf_parser.hpp"
 #include "daemon.hpp"
+#include "sock_client.hpp"
 #include "../lib/cmdline/cmdline.h"
 
 using namespace std;
 
-int runServer(string conf)
+int runServer(ConfParser parser)
 {
-  ConfParser parser(conf);
-  if (parser.ParseError()) {
-    cerr << "Can't load conf file." << endl;
-    return 1;
-  }
-
   Daemon daemon(parser.pmanConf(), parser.programConfs());
   return daemon.run();
 }
 
-int runClient(CommandType c)
+int runClient(ConfParser parser, CommandType c)
 {
-  // - TODO:
+  SockClient client(parser.pmanConf().sockfile);
+  if (client.connect() < 0) std::cerr << "connection error: " << parser.pmanConf().sockfile << std::endl;
+  client.send("startAll");
   return 0;
 }
 
@@ -29,9 +26,15 @@ int main(int argc, char *argv[])
 {
   CmdParser cmd(argc, argv);
 
+  ConfParser parser(cmd.conf());
+  if (parser.ParseError()) {
+    cerr << "Can't load conf file: " << cmd.conf() << endl;
+    return 1;
+  }
+
   if (cmd.type() == E_DAEMON) {
-    return runServer(cmd.conf());
+    return runServer(parser);
   } else {
-    return runClient(cmd.type());
+    return runClient(parser, cmd.type());
   }
 }

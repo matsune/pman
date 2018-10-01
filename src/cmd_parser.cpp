@@ -66,24 +66,24 @@ CmdParser::CmdParser(int argc, char **argv)
     }
   }
 
-  switch (this->type_) {
-    case E_DAEMON:
-      parser.add<string>("conf", 'c', "conf path", false, "./pman.conf");
-      break;
-    default:
-      break;
-  }
+  // switch (this->type_) {
+  //   case E_DAEMON:
+  //     break;
+  //   default:
+  //     break;
+  // }
+  parser.add<string>("conf", 'c', "conf path", false, "./pman.conf");
 
   parser.parse_check(new_argc, new_argv);
   free(c);
 
-  switch (this->type_) {
-    case E_DAEMON:
-      this->conf_ = parser.get<string>("conf");
-      break;
-    default:
-      break;
-  }
+  // switch (this->type_) {
+  //   case E_DAEMON:
+  //     break;
+  //   default:
+  //     break;
+  // }
+  this->conf_ = parser.get<string>("conf");
 }
 
 CommandType CmdParser::parseType(int argc, char *argv[])
