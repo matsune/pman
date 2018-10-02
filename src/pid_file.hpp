@@ -5,7 +5,7 @@ private:
   std::string fileName;
 
 public:
-  PidFile (std::string fileName)
+  PidFile (std::string fileName = "")
     : fileName(fileName) {}
   int read();
   bool check();

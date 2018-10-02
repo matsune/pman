@@ -13,6 +13,9 @@
 
 class Daemon {
 private:
+  Daemon() = default;
+  ~Daemon() = default;
+
   PmanConf conf;
   PidFile pidFile;
   std::vector<Program> programs;
@@ -26,9 +29,13 @@ private:
   Program *getProgram(int pid);
 
 public:
-  Daemon(PmanConf conf)
-    : conf(conf), pidFile(PidFile(conf.pidfile)) {}
-  Daemon(PmanConf conf, std::vector<ProgramConf> programConfs);
+  Daemon(const Daemon&) = delete;
+  Daemon& operator=(const Daemon&) = delete;
+  Daemon(Daemon&&) = delete;
+  Daemon& operator=(Daemon&&) = delete;
+  static Daemon &getInstance();
+
   void cleanup();
-  int run();
+  void setup(PmanConf conf, std::vector<ProgramConf> programConfs);
+  int runLoop();
 };

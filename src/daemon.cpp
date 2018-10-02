@@ -14,12 +14,9 @@ namespace {
 void abrt_handler(int signal) { abrt_status = signal; };
 void sigchld_handler(int signal) { sigchld_status = signal; };
 
-Daemon::Daemon(PmanConf conf, std::vector<ProgramConf> programConfs)
-  : Daemon(conf)
-{
-  for (auto conf : programConfs) {
-    programs.push_back(Program(conf));
-  }
+Daemon &Daemon::getInstance() {
+    static Daemon instance;
+    return instance;
 }
 
 void Daemon::daemonize()
@@ -139,29 +136,59 @@ void Daemon::cleanup()
   pidFile.remove();
 }
 
-int Daemon::run()
+// void Daemon::serve()
+// {
+//   std::string server_address("0.0.0.0:50051");
+//   GreeterServiceImpl service;
+//
+//   ServerBuilder builder;
+//   builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
+//   builder.RegisterService(&service);
+//   std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
+//   std::cout << "Server listening on " << server_address << std::endl;
+//
+//   server->Wait();
+// }
+void Daemon::setup(PmanConf conf, std::vector<ProgramConf> programConfs)
 {
+  this->conf = conf;
+  this->pidFile = PidFile(conf.pidfile);
+  this->programs.clear();
+  for (auto conf : programConfs) {
+    programs.push_back(Program(conf));
+  }
+
   if (pidFile.check()) {
     cerr << "pman already exists" << endl;
-    return 1;
+    return;
   }
 
   daemonize();
   pidFile.write();
   registerAbrt();
   registerSigchld();
+}
+
+int Daemon::runLoop()
+{
 
   LOG << "Start pman" << endl;
+  // SockServer sock(conf.sockfile);
 
-  SockServer sock(conf.sockfile);
+  // unique_ptr<std::thread> serveThread =
+  //     unique_ptr<thread>(new thread(&Daemon::serve, this));
+  // serveThread->detach();
 
   while (!abrt_status) {
-    sock.poll(1);
-    if (sock.hasEvents()) {
-      string msg = sock.read();
-      std::cout << msg << std::endl;
-      if (msg == "startAll") startAllPrograms();
-    }
+    sleep(2);
+    // sock.poll(1);
+    // if (sock.hasEvents()) {
+    //   string msg = sock.read();
+    //   std::cout << msg << std::endl;
+    //   if (msg == "startAll") startAllPrograms();
+    // }
+
+    // runServer();
 
     if (sigchld_status) {
       handleSigchld();
@@ -169,7 +196,7 @@ int Daemon::run()
     }
   }
 
-  sock.unlink();
+  // sock.unlink();
   cleanup();
   LOG << "End pman" << endl;
   return 0;

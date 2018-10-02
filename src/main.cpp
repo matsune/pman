@@ -9,35 +9,36 @@ using namespace std;
 
 int runServer(ConfParser parser)
 {
-  Daemon daemon(parser.pmanConf(), parser.programConfs());
-  return daemon.run();
+  static Daemon &daemon = Daemon::getInstance();
+  daemon.setup(parser.pmanConf(), parser.programConfs());
+  return daemon.runLoop();
 }
 
 int runClient(ConfParser parser, Command c, string program)
 {
-  SockClient client(parser.pmanConf().sockfile);
-  if (client.connect() < 0)
-    std::cerr << "connection error: " << parser.pmanConf().sockfile << std::endl;
-
-  switch (c) {
-    case E_STATUS:
-      client.send("status");
-      break;
-    case E_START:
-      client.send("start " + program);
-      break;
-    case E_START_ALL:
-      client.send("startAll");
-      break;
-    case E_STOP:
-      client.send("stop " + program);
-      break;
-    case E_STOP_ALL:
-      client.send("stopAll");
-      break;
-    default:
-      break;
-  }
+  // SockClient client(parser.pmanConf().sockfile);
+  // if (client.connect() < 0)
+  //   std::cerr << "connection error: " << parser.pmanConf().sockfile << std::endl;
+  //
+  // switch (c) {
+  //   case E_STATUS:
+  //     client.send("status");
+  //     break;
+  //   case E_START:
+  //     client.send("start " + program);
+  //     break;
+  //   case E_START_ALL:
+  //     client.send("startAll");
+  //     break;
+  //   case E_STOP:
+  //     client.send("stop " + program);
+  //     break;
+  //   case E_STOP_ALL:
+  //     client.send("stopAll");
+  //     break;
+  //   default:
+  //     break;
+  // }
 
   return 0;
 }
