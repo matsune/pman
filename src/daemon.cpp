@@ -136,19 +136,6 @@ void Daemon::cleanup()
   pidFile.remove();
 }
 
-// void Daemon::serve()
-// {
-//   std::string server_address("0.0.0.0:50051");
-//   GreeterServiceImpl service;
-//
-//   ServerBuilder builder;
-//   builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
-//   builder.RegisterService(&service);
-//   std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
-//   std::cout << "Server listening on " << server_address << std::endl;
-//
-//   server->Wait();
-// }
 void Daemon::setup(PmanConf conf, std::vector<ProgramConf> programConfs)
 {
   this->conf = conf;
@@ -159,8 +146,8 @@ void Daemon::setup(PmanConf conf, std::vector<ProgramConf> programConfs)
   }
 
   if (pidFile.check()) {
-    cerr << "pman already exists" << endl;
-    return;
+    cerr << "pman daemon is already running (pid: " << this->pidFile.read() << ")" << endl;
+    exit(1);
   }
 
   daemonize();
@@ -175,10 +162,6 @@ int Daemon::runLoop()
   LOG << "Start pman" << endl;
   // SockServer sock(conf.sockfile);
 
-  // unique_ptr<std::thread> serveThread =
-  //     unique_ptr<thread>(new thread(&Daemon::serve, this));
-  // serveThread->detach();
-
   while (!abrt_status) {
     sleep(2);
     // sock.poll(1);
@@ -187,8 +170,6 @@ int Daemon::runLoop()
     //   std::cout << msg << std::endl;
     //   if (msg == "startAll") startAllPrograms();
     // }
-
-    // runServer();
 
     if (sigchld_status) {
       handleSigchld();

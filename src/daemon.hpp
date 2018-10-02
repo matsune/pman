@@ -25,9 +25,9 @@ private:
   void registerSigchld();
   void handleSigchld();
   void startProgram(Program &program);
-  void startAllPrograms();
   Program *getProgram(int pid);
-
+  void cleanup();
+  
 public:
   Daemon(const Daemon&) = delete;
   Daemon& operator=(const Daemon&) = delete;
@@ -35,7 +35,7 @@ public:
   Daemon& operator=(Daemon&&) = delete;
   static Daemon &getInstance();
 
-  void cleanup();
   void setup(PmanConf conf, std::vector<ProgramConf> programConfs);
   int runLoop();
+  void startAllPrograms();
 };
