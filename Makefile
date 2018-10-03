@@ -27,8 +27,8 @@ PROTOC = protoc
 GRPC_CPP_PLUGIN = grpc_cpp_plugin
 GRPC_CPP_PLUGIN_PATH ?= `which $(GRPC_CPP_PLUGIN)`
 PROTOS_PATH = protos
-PROTO_OBJS = $(SRCDIR)/helloworld.pb.o \
- 						$(SRCDIR)/helloworld.grpc.pb.o
+PROTO_OBJS = $(SRCDIR)/pman.pb.o \
+ 						$(SRCDIR)/pman.grpc.pb.o
 
 vpath %.proto $(PROTOS_PATH)
 
@@ -37,6 +37,9 @@ all: system-check bin/$(TARGET)
 
 bin/$(TARGET): $(INI_OBJS) $(PROTO_OBJS) $(OBJS)
 	$(CXX) $(INCLUDES) $(LDFLAGS) -o $@ $^
+
+.PHONY: protos
+protos: $(PROTO_OBJS)
 
 .PHONY: clean
 clean:

@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+option java_package = "pman";
+option java_outer_classname = "PmanProto";
+
+package pman;
+
+service Pman {
+  rpc ProgramStatus (StatusRequest) returns (stream ProgramStatusReply) {}
+  rpc StartProgram (StartRequest) returns (stream ProgramStatusReply) {}
+  rpc StopProgram (StopRequest) returns (stream ProgramStatusReply) {}
+}
+
+message StatusRequest {
+  string name = 1;
+}
+
+message StartRequest {
+  string name = 1;
+}
+
+message StopRequest {
+  string name = 1;
+}
+
+message ProgramStatusReply {
+  string name = 1;
+
+  enum Status {
+    STOPPING = 0;
+    RUNNING = 1;
+  }
+  Status status = 2;
+}
