@@ -15,10 +15,10 @@ void abrt_handler(int signal) { abrt_status = signal; };
 void sigchld_handler(int signal) { sigchld_status = signal; };
 
 Daemon::Daemon(PmanConf conf, std::vector<ProgramConf> programConfs)
-  : conf(conf), pidFile(PidFile(conf.pidfile))
+  : conf_(conf), pidFile_(PidFile(conf.pidfile))
 {
-  for (auto conf : programConfs) {
-    programs.push_back(Program(conf));
+  for (auto pConf : programConfs) {
+    this->programs_.push_back(Program(pConf));
   }
 }
 
@@ -32,11 +32,11 @@ void Daemon::daemonize()
 
   umask(0);
 
-  if (chdir(conf.dir.c_str()) < 0) HANDLE_ERROR("chdir");
+  if (chdir(this->conf_.dir.c_str()) < 0) HANDLE_ERROR("chdir");
 
   if (setsid() < 0) HANDLE_ERROR("setsid");
 
-  setRedirect(conf.logfile);
+  setRedirect(this->conf_.logfile);
 }
 
 void Daemon::registerAbrt()
@@ -110,7 +110,7 @@ void Daemon::startProgram(Program &program)
 
 void Daemon::startAllPrograms()
 {
-  for (auto program = programs.begin(); program != programs.end(); ++program) {
+  for (auto program = this->programs_.begin(); program != this->programs_.end(); ++program) {
     if (program->isRunning()) {
       LOG << "program " << program->name() << " is already running." << endl;
     } else {
@@ -121,7 +121,7 @@ void Daemon::startAllPrograms()
 
 Program *Daemon::getProgram(int pid)
 {
-  for (auto program = programs.begin(); program != programs.end(); ++program) {
+  for (auto program = this->programs_.begin(); program != this->programs_.end(); ++program) {
     if (program->pid() == pid) return &(* program);
   }
   return NULL;
@@ -129,25 +129,25 @@ Program *Daemon::getProgram(int pid)
 
 void Daemon::cleanup()
 {
-  for (auto program = programs.begin(); program != programs.end(); ++program) {
+  for (auto program = this->programs_.begin(); program != this->programs_.end(); ++program) {
     if (program->isRunning()) {
       LOG << "Kill child process pid: " << program->pid() << endl;
       kill(program->pid(), SIGKILL);
     }
   }
 
-  pidFile.remove();
+  this->pidFile_.remove();
 }
 
 void Daemon::setup()
 {
-  if (pidFile.check()) {
-    cerr << "pman daemon is already running (pid: " << this->pidFile.read() << ")" << endl;
+  if (this->pidFile_.check()) {
+    cerr << "pman daemon is already running (pid: " << this->pidFile_.read() << ")" << endl;
     exit(1);
   }
 
   daemonize();
-  pidFile.write();
+  this->pidFile_.write();
   registerAbrt();
   registerSigchld();
 }

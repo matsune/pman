@@ -13,9 +13,9 @@
 
 class Daemon {
 private:
-  PmanConf conf;
-  PidFile pidFile;
-  std::vector<Program> programs;
+  PmanConf conf_;
+  PidFile pidFile_;
+  std::vector<Program> programs_;
 
   void daemonize();
   void registerAbrt();
@@ -31,4 +31,5 @@ public:
   void setup();
   int runLoop();
   void startAllPrograms();
+  std::vector<Program> programs() { return this->programs_; }
 };
