@@ -14,9 +14,12 @@ namespace {
 void abrt_handler(int signal) { abrt_status = signal; };
 void sigchld_handler(int signal) { sigchld_status = signal; };
 
-Daemon &Daemon::getInstance() {
-    static Daemon instance;
-    return instance;
+Daemon::Daemon(PmanConf conf, std::vector<ProgramConf> programConfs)
+  : conf(conf), pidFile(PidFile(conf.pidfile))
+{
+  for (auto conf : programConfs) {
+    programs.push_back(Program(conf));
+  }
 }
 
 void Daemon::daemonize()
@@ -136,15 +139,8 @@ void Daemon::cleanup()
   pidFile.remove();
 }
 
-void Daemon::setup(PmanConf conf, std::vector<ProgramConf> programConfs)
+void Daemon::setup()
 {
-  this->conf = conf;
-  this->pidFile = PidFile(conf.pidfile);
-  this->programs.clear();
-  for (auto conf : programConfs) {
-    programs.push_back(Program(conf));
-  }
-
   if (pidFile.check()) {
     cerr << "pman daemon is already running (pid: " << this->pidFile.read() << ")" << endl;
     exit(1);

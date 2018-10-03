@@ -85,13 +85,9 @@ void serve()
 
 int runServer(ConfParser parser)
 {
-  static Daemon &daemon = Daemon::getInstance();
-  daemon.setup(parser.pmanConf(), parser.programConfs());
-
-  unique_ptr<std::thread> serveThread =
-      unique_ptr<thread>(new thread(&serve));
-  serveThread->detach();
-
+  Daemon daemon(parser.pmanConf(), parser.programConfs());
+  daemon.setup();
+  thread(serve, ref(daemon)).detach();
   return daemon.runLoop();
 }
 
