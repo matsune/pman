@@ -8,7 +8,6 @@
 #include "conf_parser.hpp"
 #include "pid_file.hpp"
 #include "program.hpp"
-#include "sock_server.hpp"
 #include "task.hpp"
 
 #define LOG std::cout << "[" << nowString() << "] "

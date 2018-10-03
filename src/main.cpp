@@ -7,7 +7,6 @@
 #include "cmd_parser.hpp"
 #include "conf_parser.hpp"
 #include "daemon.hpp"
-#include "sock_client.hpp"
 #include "pman_service_impl.hpp"
 #include "pman_client.hpp"
 
