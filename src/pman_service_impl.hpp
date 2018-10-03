@@ -27,4 +27,5 @@ public:
 
 private:
   Daemon &daemon;
+  void writeStatus(grpc::ServerWriter<pman::ProgramStatusReply>* writer, std::string name);
 };

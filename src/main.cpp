@@ -2,6 +2,7 @@
 #include <string.h>
 #include <memory>
 #include <thread>
+#include <mutex>
 #include <grpcpp/grpcpp.h>
 #include "cmd_parser.hpp"
 #include "conf_parser.hpp"
@@ -13,6 +14,9 @@
 using namespace std;
 
 #define ADDRESS "0.0.0.0:50051"
+
+mutex g_mtx;
+bool g_ready;
 
 void serve(Daemon &daemon)
 {

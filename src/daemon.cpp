@@ -7,6 +7,9 @@
 
 using namespace std;
 
+extern mutex g_mtx;
+extern bool g_ready;
+
 namespace {
   volatile std::sig_atomic_t abrt_status;
   volatile std::sig_atomic_t sigchld_status;
@@ -78,6 +81,12 @@ void Daemon::handleSigchld()
   } while (killedPid > 0);
 }
 
+void Daemon::startProgram(string name)
+{
+  Program *p = getProgram(name);
+  if (p) startProgram(*p);
+}
+
 void Daemon::startProgram(Program &program)
 {
   int child_pid;
@@ -117,6 +126,14 @@ void Daemon::startAllPrograms()
       startProgram(*program);
     }
   }
+}
+
+Program *Daemon::getProgram(std::string name)
+{
+  for (auto program = this->programs_.begin(); program != this->programs_.end(); ++program) {
+    if (program->name() == name) return &(* program);
+  }
+  return NULL;
 }
 
 Program *Daemon::getProgram(int pid)
@@ -160,13 +177,34 @@ int Daemon::runLoop()
   while (!abrt_status) {
     sleep(2);
 
+    {
+      lock_guard<mutex> lk(g_mtx);
+      while (!this->tasks_.empty()) {
+        Task *task = this->tasks_.front();
+        if (task->op == Task::Operation::START) {
+          if (task->name == "all") {
+            startAllPrograms();
+          } else {
+            startProgram(task->name);
+          }
+        } else if (task->op == Task::Operation::STOP) {
+          // - TODO: stop process
+          LOG << "unimplemented stop" << endl;
+        }
+
+        g_ready = true;
+        this->tasks_.pop();
+        task->cv.notify_one();
+      }
+    }
+
     if (sigchld_status) {
+      lock_guard<mutex> lk(g_mtx);
       handleSigchld();
       sigchld_status = 0;
     }
   }
 
-  // sock.unlink();
   cleanup();
   LOG << "End pman" << endl;
   return 0;
