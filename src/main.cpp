@@ -27,7 +27,7 @@ void serve(Daemon &daemon)
   builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
   builder.RegisterService(&service);
   unique_ptr<grpc::Server> server(builder.BuildAndStart());
-  cout << "Server listening on " << server_address << endl;
+  LOG << "Server listening on " << server_address << endl;
 
   server->Wait();
 }

@@ -81,6 +81,13 @@ void Daemon::handleSigchld()
   } while (killedPid > 0);
 }
 
+void Daemon::startAllPrograms()
+{
+  for (auto program = this->programs_.begin(); program != this->programs_.end(); ++program) {
+    startProgram(*program);
+  }
+}
+
 void Daemon::startProgram(string name)
 {
   Program *p = getProgram(name);
@@ -89,6 +96,11 @@ void Daemon::startProgram(string name)
 
 void Daemon::startProgram(Program &program)
 {
+  if (program.isRunning()) {
+    LOG << "program " << program.name() << " is already running." << endl;
+    return;
+  }
+
   int child_pid;
   switch (child_pid = fork()) {
     case -1: HANDLE_ERROR("fork");
@@ -117,15 +129,27 @@ void Daemon::startProgram(Program &program)
   }
 }
 
-void Daemon::startAllPrograms()
+void Daemon::stopAllPrograms()
 {
   for (auto program = this->programs_.begin(); program != this->programs_.end(); ++program) {
-    if (program->isRunning()) {
-      LOG << "program " << program->name() << " is already running." << endl;
-    } else {
-      startProgram(*program);
-    }
+    stopProgram(*program);
   }
+}
+
+void Daemon::stopProgram(string name)
+{
+  Program *p = getProgram(name);
+  if (p) stopProgram(*p);
+}
+
+void Daemon::stopProgram(Program &program)
+{
+  if (!program.isRunning()) {
+    LOG << "program " << program.name() << " is not running." << endl;
+    return;
+  }
+
+  kill(program.pid(), SIGTERM);
 }
 
 Program *Daemon::getProgram(std::string name)
@@ -188,8 +212,11 @@ int Daemon::runLoop()
             startProgram(task->name);
           }
         } else if (task->op == Task::Operation::STOP) {
-          // - TODO: stop process
-          LOG << "unimplemented stop" << endl;
+          if (task->name == "all") {
+            stopAllPrograms();
+          } else {
+            stopProgram(task->name);
+          }
         }
 
         g_ready = true;

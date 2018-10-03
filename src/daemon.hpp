@@ -39,15 +39,18 @@ private:
   Program *getProgram(std::string name);
   Program *getProgram(int pid);
   void cleanup();
+  void startAllPrograms();
+  void startProgram(Program &program);
+  void startProgram(std::string name);
+  void stopAllPrograms();
+  void stopProgram(Program &program);
+  void stopProgram(std::string name);
 
 public:
   Daemon(PmanConf conf, std::vector<ProgramConf> programConfs);
 
   void setup();
   int runLoop();
-  void startAllPrograms();
-  void startProgram(Program &program);
-  void startProgram(std::string name);
-  std::vector<Program> programs() { return this->programs_; }
   void pushTask(Task *t) { this->tasks_.push(t); }
+  std::vector<Program> programs() { return this->programs_; }
 };
