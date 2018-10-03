@@ -21,7 +21,6 @@ private:
   void registerAbrt();
   void registerSigchld();
   void handleSigchld();
-  void startProgram(Program &program);
   Program *getProgram(int pid);
   void cleanup();
 
@@ -31,5 +30,6 @@ public:
   void setup();
   int runLoop();
   void startAllPrograms();
+  void startProgram(Program &program);
   std::vector<Program> programs() { return this->programs_; }
 };

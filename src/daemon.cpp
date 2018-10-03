@@ -156,16 +156,9 @@ int Daemon::runLoop()
 {
 
   LOG << "Start pman" << endl;
-  // SockServer sock(conf.sockfile);
 
   while (!abrt_status) {
     sleep(2);
-    // sock.poll(1);
-    // if (sock.hasEvents()) {
-    //   string msg = sock.read();
-    //   std::cout << msg << std::endl;
-    //   if (msg == "startAll") startAllPrograms();
-    // }
 
     if (sigchld_status) {
       handleSigchld();

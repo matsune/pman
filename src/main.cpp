@@ -46,8 +46,10 @@ int runClient(ConfParser parser, Command c, string program)
       status = client.ProgramStatus(program);
       break;
     case E_START:
+      status = client.StartProgram(program);
       break;
     case E_STOP:
+      status = client.StopProgram(program);
       break;
     default:
       return 0;
@@ -56,7 +58,7 @@ int runClient(ConfParser parser, Command c, string program)
   if (!status.ok()) {
     cout << status.error_code() << ": " << status.error_message() << endl;
   }
-  
+
   return 0;
 }
 
