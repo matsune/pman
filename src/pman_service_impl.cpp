@@ -2,9 +2,6 @@
 #include "pman.grpc.pb.h"
 #include "pman_service_impl.hpp"
 
-extern std::mutex g_mtx;
-extern bool g_ready;
-
 using grpc::Service;
 using grpc::ServerContext;
 using grpc::ServerWriter;
@@ -33,7 +30,7 @@ Status PmanServiceImpl::ProgramStatus(
   const StatusRequest* request,
   ServerWriter<ProgramStatusReply>* writer)
 {
-  std::lock_guard<std::mutex> lk(g_mtx);
+  std::lock_guard<std::mutex> lk(daemon.mtx);
 
   ProgramStatusReply reply;
   std::string name = request->name();
@@ -49,12 +46,11 @@ Status PmanServiceImpl::StartProgram(
   const StartRequest* request,
   ServerWriter< ProgramStatusReply>* writer)
 {
-  std::unique_lock<std::mutex> lk(g_mtx);
+  std::unique_lock<std::mutex> lk(daemon.mtx);
   std::condition_variable cv;
-  Task t(cv, Task::Operation::START, request->name());
+  Task t(cv, Task::Order::START, request->name());
   daemon.pushTask(&t);
-  cv.wait(lk, [&]{ return g_ready; });
-  g_ready = false;
+  cv.wait(lk, [&]{ return !daemon.hasTaskId(t.id); });
 
   writeStatus(writer, request->name());
 
@@ -66,12 +62,11 @@ Status PmanServiceImpl::StopProgram(
   const StopRequest* request,
   ServerWriter< ProgramStatusReply>* writer)
 {
-  std::unique_lock<std::mutex> lk(g_mtx);
+  std::unique_lock<std::mutex> lk(daemon.mtx);
   std::condition_variable cv;
-  Task t(cv, Task::Operation::STOP, request->name());
+  Task t(cv, Task::Order::STOP, request->name());
   daemon.pushTask(&t);
-  cv.wait(lk, [&]{ return g_ready; });
-  g_ready = false;
+  cv.wait(lk, [&]{ return !daemon.hasTaskId(t.id); });
 
   writeStatus(writer, request->name());
 

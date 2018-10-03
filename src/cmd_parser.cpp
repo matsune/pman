@@ -57,11 +57,11 @@ void CmdParser::parseCommand()
   assert(isCommand());
 
   if (match("status")) {
-    this->command_ = E_STATUS;
+    this->command_ = STATUS;
   } else if (match("start")) {
-    this->command_ = E_START;
+    this->command_ = START;
   } else if (match("stop")) {
-    this->command_ = E_STOP;
+    this->command_ = STOP;
   }
 
   // parse program name
@@ -70,8 +70,8 @@ void CmdParser::parseCommand()
   // `status` command allows empty, then called `status all` by default.
   if (!hasNext()) {
     switch (command()) {
-      case E_START:
-      case E_STOP:
+      case START:
+      case STOP:
         cerr << "requires program name" << endl << endl;
         cerr << usage() << endl;
         exit(1);
@@ -83,7 +83,7 @@ void CmdParser::parseCommand()
   consume();
 
   if (isArgs()) {
-    if (command() == E_START || command() == E_STOP) {
+    if (command() == START || command() == STOP) {
       cerr << "requires program name" << endl;
       exit(1);
     } else {

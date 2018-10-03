@@ -9,21 +9,9 @@
 #include "pid_file.hpp"
 #include "program.hpp"
 #include "sock_server.hpp"
+#include "task.hpp"
 
 #define LOG std::cout << "[" << nowString() << "] "
-
-struct Task {
-  enum Operation {
-    START,
-    STOP
-  };
-
-  std::condition_variable &cv;
-  Operation op;
-  std::string name;
-  Task(std::condition_variable &cv, Operation op, std::string name)
-    : cv(cv), op(op), name(name) {}
-};
 
 class Daemon {
 private:
@@ -48,9 +36,11 @@ private:
 
 public:
   Daemon(PmanConf conf, std::vector<ProgramConf> programConfs);
+  std::mutex mtx;
 
   void setup();
   int runLoop();
   void pushTask(Task *t) { this->tasks_.push(t); }
+  bool hasTaskId(int id);
   std::vector<Program> programs() { return this->programs_; }
 };

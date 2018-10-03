@@ -7,9 +7,6 @@
 
 using namespace std;
 
-extern mutex g_mtx;
-extern bool g_ready;
-
 namespace {
   volatile std::sig_atomic_t abrt_status;
   volatile std::sig_atomic_t sigchld_status;
@@ -202,16 +199,16 @@ int Daemon::runLoop()
     sleep(2);
 
     {
-      lock_guard<mutex> lk(g_mtx);
+      lock_guard<mutex> lk(mtx);
       while (!this->tasks_.empty()) {
         Task *task = this->tasks_.front();
-        if (task->op == Task::Operation::START) {
+        if (task->op == Task::Order::START) {
           if (task->name == "all") {
             startAllPrograms();
           } else {
             startProgram(task->name);
           }
-        } else if (task->op == Task::Operation::STOP) {
+        } else if (task->op == Task::Order::STOP) {
           if (task->name == "all") {
             stopAllPrograms();
           } else {
@@ -219,14 +216,13 @@ int Daemon::runLoop()
           }
         }
 
-        g_ready = true;
         this->tasks_.pop();
         task->cv.notify_one();
       }
     }
 
     if (sigchld_status) {
-      lock_guard<mutex> lk(g_mtx);
+      lock_guard<mutex> lk(mtx);
       handleSigchld();
       sigchld_status = 0;
     }
@@ -235,4 +231,15 @@ int Daemon::runLoop()
   cleanup();
   LOG << "End pman" << endl;
   return 0;
+}
+
+bool Daemon::hasTaskId(int id)
+{
+  // :(
+  queue<Task *> t = this->tasks_;
+  while(!t.empty()) {
+    if (t.front()->id == id) return true;
+    t.pop();
+  }
+  return false;
 }

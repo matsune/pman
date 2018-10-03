@@ -15,7 +15,7 @@ PmanConf ConfParser::pmanConf()
     reader.Get(PMAN_SECTION, "pidfile", "pman.pid"),
     reader.Get(PMAN_SECTION, "logfile", "pman.log"),
     reader.Get(PMAN_SECTION, "directory", "/tmp"),
-    reader.Get(PMAN_SECTION, "sockfile", "pman.sock"),
+    reader.Get(PMAN_SECTION, "port", "127.0.0.1:50010"),
   };
 }
 

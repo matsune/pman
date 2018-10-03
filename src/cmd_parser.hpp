@@ -1,10 +1,10 @@
 #include <string>
 
 enum Command {
-  E_DAEMON,
-  E_STATUS,
-  E_START,
-  E_STOP
+  DAEMON,
+  STATUS,
+  START,
+  STOP
 };
 
 class CmdParser {
@@ -33,7 +33,7 @@ private:
 
 public:
   CmdParser(int argc, char **argv)
-    : argc(argc), argv(argv), cursor(0), command_(E_DAEMON), program_(""), conffile_("./pman.conf") {};
+    : argc(argc), argv(argv), cursor(0), command_(DAEMON), program_(""), conffile_("./pman.conf") {};
   void parse();
   Command command() { return this->command_; }
   std::string conffile() { return this->conffile_; }

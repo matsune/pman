@@ -13,14 +13,9 @@
 
 using namespace std;
 
-#define ADDRESS "0.0.0.0:50051"
-
-mutex g_mtx;
-bool g_ready;
-
-void serve(Daemon &daemon)
+void serve(string port, Daemon &daemon)
 {
-  string server_address(ADDRESS);
+  string server_address(port);
   PmanServiceImpl service(daemon);
 
   grpc::ServerBuilder builder;
@@ -36,23 +31,23 @@ int runServer(ConfParser parser)
 {
   Daemon daemon(parser.pmanConf(), parser.programConfs());
   daemon.setup();
-  thread(serve, ref(daemon)).detach();
+  thread(serve, parser.pmanConf().port, ref(daemon)).detach();
   return daemon.runLoop();
 }
 
 int runClient(ConfParser parser, Command c, string program)
 {
-  PmanClient client(ADDRESS);
+  PmanClient client(parser.pmanConf().port);
 
   grpc::Status status;
   switch (c) {
-    case E_STATUS:
+    case STATUS:
       status = client.ProgramStatus(program);
       break;
-    case E_START:
+    case START:
       status = client.StartProgram(program);
       break;
-    case E_STOP:
+    case STOP:
       status = client.StopProgram(program);
       break;
     default:
@@ -77,7 +72,7 @@ int main(int argc, char *argv[])
     return 1;
   }
 
-  if (cmd.command() == E_DAEMON) {
+  if (cmd.command() == DAEMON) {
     return runServer(parser);
   } else {
     return runClient(parser, cmd.command(), cmd.program());
