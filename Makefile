@@ -149,7 +149,11 @@ test: $(TEST_TARGET)
 $(TEST_TARGET): $(INI_OBJS) $(TEST_OBJS) $(LIB_DIR)/gtest_main.a
 	@[ -d $(BIN_DIR) ] || mkdir -p $(BIN_DIR)
 	$(CXX) $(LDFLAGS) -o $@ $(TEST_OBJS) $(LIB_DIR)/gtest_main.a $(LIBS) -lpthread \
-		src/cmd_parser.o src/util.o $(INI_OBJS) src/conf_parser.o
+		$(INI_OBJS) \
+		$(SRC_DIR)/cmd_parser.o \
+		$(SRC_DIR)/util.o \
+		$(SRC_DIR)/conf_parser.o \
+		$(SRC_DIR)/pid_file.o
 
 $(TEST_DIR)/%.o: $(TEST_DIR)/%.cpp $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS)$(TEST_FLAGS) $(CXXFLAGS) $(INCS) -o $@ -c $<
