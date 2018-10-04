@@ -48,8 +48,10 @@ Status PmanServiceImpl::StartProgram(
 {
   std::unique_lock<std::mutex> lk(daemon.mtx);
   std::condition_variable cv;
+
   Task t(cv, Task::Order::START, request->name());
   daemon.pushTask(&t);
+  // wait until completed this task
   cv.wait(lk, [&]{ return !daemon.hasTaskId(t.id); });
 
   writeStatus(writer, request->name());
@@ -64,6 +66,7 @@ Status PmanServiceImpl::StopProgram(
 {
   std::unique_lock<std::mutex> lk(daemon.mtx);
   std::condition_variable cv;
+
   Task t(cv, Task::Order::STOP, request->name());
   daemon.pushTask(&t);
   cv.wait(lk, [&]{ return !daemon.hasTaskId(t.id); });

@@ -27,4 +27,5 @@ public:
   void stopped();
   bool isKilled() { return this->isKilled_; }
   void kill() { this->isKilled_ = true; }
+  void spawn();
 };

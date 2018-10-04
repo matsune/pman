@@ -1,5 +1,7 @@
+#include <unistd.h>
 #include "defines.h"
 #include "program.hpp"
+#include "util.hpp"
 
 bool Program::tooShort()
 {
@@ -20,4 +22,19 @@ void Program::stopped()
 {
   this->isRunning_ = false;
   this->pid_ = 0;
+}
+
+void Program::spawn()
+{
+  setRedirect(logfile());
+
+  int count = command().size();
+  char *args[count + 1];
+  for (int i = 0; i < count; i++) {
+    args[i] = (char *)command().at(i).c_str();
+  }
+  args[count] = NULL;
+  execv(args[0], args);
+  perror(name().c_str());
+  exit(1);
 }

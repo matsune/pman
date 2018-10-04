@@ -60,8 +60,10 @@ void Daemon::handleSigchld()
 
   do {
     killedPid = waitpid(-1, 0, WNOHANG);
+
     if (killedPid > 0) {
       program = getProgram(killedPid);
+      
       if (program) {
         program->stopped();
         LOG << "exited program " << program->name() << " pid " << killedPid << endl;
@@ -102,25 +104,15 @@ void Daemon::startProgram(Program &program)
   switch (child_pid = fork()) {
     case -1: HANDLE_ERROR("fork");
     case 0:
-      {
-        setRedirect(program.logfile());
-
-        int count = program.command().size();
-        char *args[count + 1];
-        for (int i = 0; i < count; i++) {
-          args[i] = (char *)program.command().at(i).c_str();
-        }
-        args[count] = NULL;
-        execv(args[0], args);
-        perror(program.name().c_str());
-        exit(1);
-      }
+        program.spawn();
+        break;
     default:
       if (program.execCount() == 0) {
         LOG << "[Start] ";
       } else {
         LOG << "[Restart] ";
       }
+      // - FIXME: should wait until forked process completely executed
       program.started(child_pid);
       cout << "program " << program.name() << " pid: " << child_pid << endl;
   }
@@ -197,7 +189,9 @@ int Daemon::runLoop()
     sleep(1);
 
     {
+      // lock to make thread safe while handling tasks
       lock_guard<mutex> lk(mtx);
+
       while (!this->tasks_.empty()) {
         Task *task = this->tasks_.front();
         if (task->op == Task::Order::START) {
