@@ -5,8 +5,10 @@ CXXFLAGS = -O2 -Wall -std=c++11
 SRC_DIR = src
 SRCS = $(wildcard $(SRC_DIR)/*.cpp)
 OBJS = $(SRCS:.cpp=.o)
-TARGET = pman
+BIN_DIR = bin
+TARGET = $(BIN_DIR)/pman
 SUBMODULES_DIR = submodules
+LIB_DIR = lib
 ifeq ($(SYSTEM),Darwin)
 LDFLAGS += -L/usr/local/lib `pkg-config --libs protobuf grpc++ grpc`\
            -lgrpc++_reflection\
@@ -34,9 +36,10 @@ PROTO_OBJS = $(SRC_DIR)/pman.pb.o \
 vpath %.proto $(PROTOS_PATH)
 
 .PHONY: all
-all: system-check bin/$(TARGET)
+all: system-check $(TARGET)
 
-bin/$(TARGET): $(INI_OBJS) $(PROTO_OBJS) $(OBJS)
+$(TARGET): $(INI_OBJS) $(PROTO_OBJS) $(OBJS)
+	@[ -d $(BIN_DIR) ] || mkdir -p $(BIN_DIR)
 	$(CXX) $(INCLUDES) $(LDFLAGS) -o $@ $^
 
 .PHONY: protos
@@ -110,3 +113,45 @@ endif
 ifneq ($(SYSTEM_OK),true)
 	@false
 endif
+
+#
+# test
+#
+TEST_DIR = test
+TEST_SRCS = $(wildcard $(TEST_DIR)/*.cpp)
+TEST_OBJS = $(TEST_SRCS:.cpp=.o)
+TEST_TARGET = $(BIN_DIR)/pman_test
+GTEST_DIR = $(SUBMODULES_DIR)/googletest/googletest
+GTEST_HEADERS = $(GTEST_DIR)/include/gtest/*.h \
+								$(GTEST_DIR)/include/gtest/internal/*.h
+GTEST_SRCS = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)
+TEST_FLAGS += -isystem $(GTEST_DIR)/include
+
+
+$(TEST_DIR)/gtest-all.o : $(GTEST_SRCS_)
+	$(CXX) $(CPPFLAGS)$(TEST_FLAGS) -I$(GTEST_DIR) $(CXXFLAGS) -c -o $@ $(GTEST_DIR)/src/gtest-all.cc
+
+$(TEST_DIR)/gtest_main.o : $(GTEST_SRCS_)
+	$(CXX) $(CPPFLAGS)$(TEST_FLAGS) -I$(GTEST_DIR) $(CXXFLAGS) -c -o $@ $(GTEST_DIR)/src/gtest_main.cc
+
+$(LIB_DIR)/gtest.a : $(TEST_DIR)/gtest-all.o
+	@[ -d $(LIB_DIR) ] || mkdir -p $(LIB_DIR)
+	$(AR) $(ARFLAGS) $@ $^
+
+$(LIB_DIR)/gtest_main.a : $(TEST_DIR)/gtest-all.o $(TEST_DIR)/gtest_main.o
+	@[ -d $(LIB_DIR) ] || mkdir -p $(LIB_DIR)
+	$(AR) $(ARFLAGS) $@ $^
+
+.PHONY: test
+test: $(TEST_TARGET)
+
+$(TEST_TARGET): $(TEST_OBJS) $(LIB_DIR)/gtest_main.a
+	@[ -d $(BIN_DIR) ] || mkdir -p $(BIN_DIR)
+	$(CXX) $(LDFLAGS) -o $@ $(TEST_OBJS) $(LIB_DIR)/gtest_main.a $(LIBS) -lpthread
+
+$(TEST_DIR)/%.o: $(TEST_DIR)/%.cpp $(GTEST_HEADERS)
+	$(CXX) $(CPPFLAGS)$(TEST_FLAGS) $(CXXFLAGS) $(INCS) -o $@ -c $<
+
+.PHONY: clean-test
+clean-test:
+	$(RM) $(TEST_TARGET) $(TEST_OBJS)

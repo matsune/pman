@@ -1,4 +1,6 @@
 *.o
-bin/pman
+bin/
+lib/
+*.pb.*
 *.pid
 *.log
