@@ -144,10 +144,12 @@ $(LIB_DIR)/gtest_main.a : $(TEST_DIR)/gtest-all.o $(TEST_DIR)/gtest_main.o
 
 .PHONY: test
 test: $(TEST_TARGET)
+	./$(TEST_TARGET)
 
 $(TEST_TARGET): $(TEST_OBJS) $(LIB_DIR)/gtest_main.a
 	@[ -d $(BIN_DIR) ] || mkdir -p $(BIN_DIR)
-	$(CXX) $(LDFLAGS) -o $@ $(TEST_OBJS) $(LIB_DIR)/gtest_main.a $(LIBS) -lpthread
+	$(CXX) $(LDFLAGS) -o $@ $(TEST_OBJS) $(LIB_DIR)/gtest_main.a $(LIBS) -lpthread \
+		src/cmd_parser.o src/util.o
 
 $(TEST_DIR)/%.o: $(TEST_DIR)/%.cpp $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS)$(TEST_FLAGS) $(CXXFLAGS) $(INCS) -o $@ -c $<

@@ -1,6 +1,5 @@
 #include <string>
-
-#define DEFAULT_CONF_PATH "/etc/pman.conf"
+#include "defines.h"
 
 enum Command {
   DAEMON,
