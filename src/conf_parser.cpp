@@ -1,4 +1,5 @@
 #include <iostream>
+#include "defines.h"
 #include "util.hpp"
 #include "conf_parser.hpp"
 
@@ -12,10 +13,10 @@ bool ConfParser::ParseError()
 PmanConf ConfParser::pmanConf()
 {
   return PmanConf {
-    reader.Get(PMAN_SECTION, "pidfile", "pman.pid"),
-    reader.Get(PMAN_SECTION, "logfile", "pman.log"),
-    reader.Get(PMAN_SECTION, "directory", "/tmp"),
-    reader.Get(PMAN_SECTION, "port", "127.0.0.1:50010"),
+    reader.Get(PMAN_SECTION, PID_FILE_KEY, PID_FILE_DEFAULT),
+    reader.Get(PMAN_SECTION, LOG_FILE_KEY, DAEMON_LOG_DEFAULT),
+    reader.Get(PMAN_SECTION, DIR_KEY, DIR_DEFAULT),
+    reader.Get(PMAN_SECTION, PORT_KEY, PORT_DEFAULT),
   };
 }
 
@@ -45,9 +46,9 @@ std::vector<ProgramConf> ConfParser::programConfs()
   vector<ProgramConf> res;
   for (set<string>::iterator it = names.begin(); it != names.end(); ++it) {
     const string section = PROGRAM_PREFIX + *it;
-    string logfile = reader.Get(section, "logfile", "/dev/null");
-    string command = reader.Get(section, "command", "");
-    bool autorestart = reader.GetBoolean(section, "autorestart", true);
+    string logfile = reader.Get(section, LOG_FILE_KEY, PROGRAM_LOG_DEFAULT);
+    string command = reader.Get(section, COMMAND_KEY, COMMAND_DEFAULT);
+    bool autorestart = reader.GetBoolean(section, AUTO_RESTART_KEY, AUTO_RESTART_DEFAULT);
 
     vector<string> commands;
     split(command, commands, ' ');
