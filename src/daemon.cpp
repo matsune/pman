@@ -66,7 +66,7 @@ void Daemon::handleSigchld()
         program->stopped();
         LOG << "exited program " << program->name() << " pid " << killedPid << endl;
 
-        if (program->autorestart()) {
+        if (program->autorestart() && !program->isKilled()) {
           if (program->tooShort()) {
             LOG << "The process exited too quickly." << endl;
           } else {
@@ -146,6 +146,7 @@ void Daemon::stopProgram(Program &program)
     return;
   }
 
+  program.kill();
   kill(program.pid(), SIGTERM);
 }
 
