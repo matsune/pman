@@ -1,3 +1,4 @@
+#include "defines.h"
 #include "program.hpp"
 
 bool Program::tooShort()

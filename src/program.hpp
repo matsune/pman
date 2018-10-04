@@ -3,8 +3,6 @@
 #include <time.h>
 #include "conf_parser.hpp"
 
-#define RESTART_MIN_SEC 1
-
 class Program {
 private:
   ProgramConf conf;

@@ -192,11 +192,8 @@ void Daemon::setup()
 
 int Daemon::runLoop()
 {
-
-  LOG << "Start pman" << endl;
-
   while (!abrt_status) {
-    sleep(2);
+    sleep(1);
 
     {
       lock_guard<mutex> lk(mtx);

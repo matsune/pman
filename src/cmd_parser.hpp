@@ -1,5 +1,7 @@
 #include <string>
 
+#define DEFAULT_CONF_PATH "/etc/pman.conf"
+
 enum Command {
   DAEMON,
   STATUS,
@@ -33,7 +35,7 @@ private:
 
 public:
   CmdParser(int argc, char **argv)
-    : argc(argc), argv(argv), cursor(0), command_(DAEMON), program_(""), conffile_("./pman.conf") {};
+    : argc(argc), argv(argv), cursor(0), command_(DAEMON), program_(""), conffile_(DEFAULT_CONF_PATH) {};
   void parse();
   Command command() { return this->command_; }
   std::string conffile() { return this->conffile_; }

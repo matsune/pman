@@ -1,16 +1,14 @@
 #pragma once
+#include <condition_variable>
 #include <csignal>
 #include <string>
 #include <vector>
 #include <queue>
-#include <condition_variable>
-#include "util.hpp"
 #include "conf_parser.hpp"
 #include "pid_file.hpp"
 #include "program.hpp"
 #include "task.hpp"
-
-#define LOG std::cout << "[" << nowString() << "] "
+#include "util.hpp"
 
 class Daemon {
 private:

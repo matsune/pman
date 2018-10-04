@@ -149,11 +149,11 @@ std::string CmdParser::usage()
     << "  status <program>\tshow status" << endl
     << "  status all      \tshow status of all programs" << endl
     << "  start <program> \tstart program" << endl
-    << "  start all       \tstart all programs that not running" << endl
+    << "  start all       \tstart all programs which is not running" << endl
     << "  stop <program>  \tstop program" << endl
-    << "  stop all        \tstop all programs that running" << endl
+    << "  stop all        \tstop all programs which is running" << endl
     << endl
     << "args:" << endl
-    << "  --conf, -c <path>\tconfig file path" << endl;
+    << "  --conf, -c <path>\tconfig file path (default: /etc/pman.conf)" << endl;
   return os.str();
 }

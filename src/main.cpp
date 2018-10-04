@@ -7,36 +7,15 @@
 #include "cmd_parser.hpp"
 #include "conf_parser.hpp"
 #include "daemon.hpp"
+#include "defines.h"
 #include "pman_service_impl.hpp"
 #include "pman_client.hpp"
 
 using namespace std;
 
-void serve(string port, Daemon &daemon)
+int runClient(string port, Command c, string program)
 {
-  string server_address(port);
-  PmanServiceImpl service(daemon);
-
-  grpc::ServerBuilder builder;
-  builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
-  builder.RegisterService(&service);
-  unique_ptr<grpc::Server> server(builder.BuildAndStart());
-  LOG << "Server listening on " << server_address << endl;
-
-  server->Wait();
-}
-
-int runServer(ConfParser parser)
-{
-  Daemon daemon(parser.pmanConf(), parser.programConfs());
-  daemon.setup();
-  thread(serve, parser.pmanConf().port, ref(daemon)).detach();
-  return daemon.runLoop();
-}
-
-int runClient(ConfParser parser, Command c, string program)
-{
-  PmanClient client(parser.pmanConf().port);
+  PmanClient client(port);
 
   grpc::Status status;
   switch (c) {
@@ -60,20 +39,49 @@ int runClient(ConfParser parser, Command c, string program)
   return 0;
 }
 
+void rungRPCServer(string port, Daemon &daemon)
+{
+  string server_address(port);
+  PmanServiceImpl service(daemon);
+
+  grpc::ServerBuilder builder;
+  builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
+  builder.RegisterService(&service);
+  unique_ptr<grpc::Server> server(builder.BuildAndStart());
+  LOG << "Server listening on " << server_address << endl;
+
+  server->Wait();
+}
+
+int runServer(PmanConf pmanConf, vector<ProgramConf> programConfs)
+{
+  /*
+    Pman server runs 2 threads; main thread is daemon and
+    sub thread is server waiting for client's request.
+  */
+  Daemon daemon(pmanConf, programConfs);
+  daemon.setup();
+  
+  LOG << "Start pman" << endl;
+
+  thread(rungRPCServer, pmanConf.port, ref(daemon)).detach();
+  return daemon.runLoop();
+}
+
 int main(int argc, char *argv[])
 {
-  CmdParser cmd(argc, argv);
-  cmd.parse();
+  CmdParser cmdParser(argc, argv);
+  cmdParser.parse();
 
-  ConfParser parser(cmd.conffile());
-  if (parser.ParseError()) {
-    cerr << "Can't load conf file: " << cmd.conffile() << endl;
+  ConfParser confParser(cmdParser.conffile());
+  if (confParser.ParseError()) {
+    cerr << "Can't load conf file: " << cmdParser.conffile() << endl;
     return 1;
   }
 
-  if (cmd.command() == DAEMON) {
-    return runServer(parser);
+  if (cmdParser.command() == DAEMON) {
+    return runServer(confParser.pmanConf(), confParser.programConfs());
   } else {
-    return runClient(parser, cmd.command(), cmd.program());
+    return runClient(confParser.pmanConf().port, cmdParser.command(), cmdParser.program());
   }
 }
