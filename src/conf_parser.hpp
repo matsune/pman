@@ -3,7 +3,7 @@
 #include <set>
 #include <vector>
 #include <string>
-#include "../lib/inih/cpp/INIReader.h"
+#include "../submodules/inih/cpp/INIReader.h"
 
 #define PMAN_SECTION "pman"
 #define PROGRAM_PREFIX "program:"
