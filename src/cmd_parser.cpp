@@ -74,6 +74,7 @@ void CmdParser::parseCommand()
     switch (command()) {
       case START:
       case STOP:
+      case RESTART:
         cerr << "requires program name" << endl << endl;
         cerr << usage() << endl;
         exit(1);
@@ -148,12 +149,14 @@ std::string CmdParser::usage()
   os << "usage: pman [--version | -v] [--help | -h]" << endl
     << "\t    <command> [<args>]" << endl
     << "command:" << endl
-    << "  status <program>\tshow status" << endl
-    << "  status all      \tshow status of all programs" << endl
-    << "  start <program> \tstart program" << endl
-    << "  start all       \tstart all programs which is not running" << endl
-    << "  stop <program>  \tstop program" << endl
-    << "  stop all        \tstop all programs which is running" << endl
+    << "  status <program>  \tshow status" << endl
+    << "  status all        \tshow status of all programs" << endl
+    << "  start <program>   \tstart program" << endl
+    << "  start all         \tstart all programs which is not running" << endl
+    << "  stop <program>    \tstop program" << endl
+    << "  stop all          \tstop all programs which is running" << endl
+    << "  restart <program> \tstop and start program" << endl
+    << "  restart all       \trestart all programs" << endl
     << endl
     << "args:" << endl
     << "  --conf, -c <path>\tconfig file path (default: /etc/pman.conf)" << endl;

@@ -155,6 +155,21 @@ TEST_F(CmdParserTest, StopWithNoArgs)
   EXPECT_EXIT(parse(), ::testing::ExitedWithCode(1), "");
 }
 
+TEST_F(CmdParserTest, RestartWithArgs)
+{
+  makeArgs({ "pman", "restart", "a" });
+  parse();
+  EXPECT_EQ(cmd->command(), RESTART);
+  EXPECT_EQ(cmd->program(), "a");
+  EXPECT_EQ(cmd->conffile(), DEFAULT_CONF_PATH);
+}
+
+TEST_F(CmdParserTest, RestartWithNoArgs)
+{
+  makeArgs({ "pman", "restart" });
+  EXPECT_EXIT(parse(), ::testing::ExitedWithCode(1), "");
+}
+
 TEST_F(CmdParserTest, UnknownOptions)
 {
   makeArgs({ "pman", "-i", "aaa" });
