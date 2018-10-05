@@ -6,20 +6,6 @@
 #include <unistd.h>
 #include "defines.h"
 
-void setRedirect(std::string filename)
-{
-  for (int i = getdtablesize(); i >= 0; --i) {
-    close(i);
-  }
-
-  int log_fd = open(filename.c_str(), O_RDWR|O_CREAT|O_APPEND, 0600);
-  if (log_fd < 0) HANDLE_ERROR("open");
-  dup2(log_fd, fileno(stdout));
-  dup2(log_fd, fileno(stderr));
-
-  close(log_fd);
-}
-
 bool startsWith(const std::string& s, const std::string& prefix)
 {
   auto size = prefix.size();

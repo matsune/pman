@@ -33,7 +33,14 @@ void Daemon::daemonize()
   umask(0);
   if (chdir(this->conf_.dir.c_str()) < 0) HANDLE_ERROR("chdir");
   if (setsid() < 0) HANDLE_ERROR("setsid");
-  setRedirect(this->conf_.logfile);
+
+  close(0);
+  close(1);
+  close(2);
+  int log_fd = open(conf_.logfile.c_str(), O_RDWR|O_CREAT|O_APPEND, 0600);
+  dup2(log_fd, 1);
+  dup2(log_fd, 2);
+  close(log_fd);
 }
 
 void Daemon::registerAbrt()

@@ -19,7 +19,8 @@
 #define PORT_KEY "port"
 #define PORT_DEFAULT "127.0.0.1:50010"
 
-#define PROGRAM_LOG_DEFAULT "/dev/null"
+#define STDOUT_KEY "stdout"
+#define STDERR_KEY "stderr"
 #define COMMAND_KEY "command"
 #define COMMAND_DEFAULT ""
 #define AUTO_RESTART_KEY "autorestart"

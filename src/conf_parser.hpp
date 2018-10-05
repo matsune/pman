@@ -17,7 +17,8 @@ struct PmanConf {
 
 struct ProgramConf {
   std::string name;
-  std::string logfile;
+  std::string stdout;
+  std::string stderr;
   std::vector<std::string> command;
   bool autorestart;
 };
@@ -25,6 +26,7 @@ struct ProgramConf {
 class ConfParser {
 private:
   INIReader reader;
+  std::string makeTmpPath(std::string program, std::string std);
 
 public:
   ConfParser (std::string confFile)

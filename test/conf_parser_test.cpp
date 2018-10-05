@@ -66,7 +66,8 @@ TEST_F(ConfParserTest, ParseProgramSection)
 {
   parse(
     "[program:test1]\n"
-    "logfile=test1_logfile\n"
+    "stdout=test1_stdout.log\n"
+    "stderr=test1_stderr.log\n"
     "command=say hello\n"
     "autorestart=false\n"
   );
@@ -79,7 +80,8 @@ TEST_F(ConfParserTest, ParseProgramSection)
   ASSERT_EQ(parser->programNames().size(), 1);
   EXPECT_TRUE(parser->programNames().find("test1") != parser->programNames().end());
   ASSERT_EQ(parser->programConfs().size(), 1);
-  EXPECT_EQ(parser->programConfs().at(0).logfile, "test1_logfile");
+  EXPECT_EQ(parser->programConfs().at(0).stdout, "test1_stdout.log");
+  EXPECT_EQ(parser->programConfs().at(0).stderr, "test1_stderr.log");
   ASSERT_EQ(parser->programConfs().at(0).command.size(), 2);
   EXPECT_EQ(parser->programConfs().at(0).command.at(0), "say");
   EXPECT_EQ(parser->programConfs().at(0).command.at(1), "hello");
@@ -91,12 +93,12 @@ TEST_F(ConfParserTest, ParseMultiplePrograms)
 {
   parse(
     "[program:test1]\n"
-    "logfile=test1_logfile\n"
+    "stdout=program_test1_stdout.log\n"
+    "stderr=program_test1_stderr.log\n"
     "command=say hello\n"
     "autorestart=false\n"
     "\n"
     "[program:test2]\n"
-    "logfile=test2_logfile\n"
     "command=ls\n"
   );
   EXPECT_FALSE(parser->ParseError());
@@ -107,16 +109,18 @@ TEST_F(ConfParserTest, ParseMultiplePrograms)
   EXPECT_EQ(pmanConf.port, PORT_DEFAULT);
   ASSERT_EQ(parser->programNames().size(), 2);
   EXPECT_TRUE(parser->programNames().find("test1") != parser->programNames().end());
-  
+
   ASSERT_EQ(parser->programConfs().size(), 2);
 
-  EXPECT_EQ(parser->programConfs().at(0).logfile, "test1_logfile");
+  EXPECT_EQ(parser->programConfs().at(0).stdout, "program_test1_stdout.log");
+  EXPECT_EQ(parser->programConfs().at(0).stderr, "program_test1_stderr.log");
   ASSERT_EQ(parser->programConfs().at(0).command.size(), 2);
   EXPECT_EQ(parser->programConfs().at(0).command.at(0), "say");
   EXPECT_EQ(parser->programConfs().at(0).command.at(1), "hello");
   EXPECT_FALSE(parser->programConfs().at(0).autorestart);
 
-  EXPECT_EQ(parser->programConfs().at(1).logfile, "test2_logfile");
+  EXPECT_EQ(parser->programConfs().at(1).stdout, "/tmp/test2_stdout.log");
+  EXPECT_EQ(parser->programConfs().at(1).stderr, "/tmp/test2_stderr.log");
   ASSERT_EQ(parser->programConfs().at(1).command.size(), 1);
   EXPECT_EQ(parser->programConfs().at(1).command.at(0), "ls");
   EXPECT_TRUE(parser->programConfs().at(1).autorestart);

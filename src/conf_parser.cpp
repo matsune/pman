@@ -40,13 +40,24 @@ set<string> ConfParser::programNames()
   return res;
 }
 
-std::vector<ProgramConf> ConfParser::programConfs()
+string ConfParser::makeTmpPath(string program, string std)
+{
+  for(string::iterator it = program.begin(); it != program.end(); ++it) {
+    if(*it == ' ') {
+      *it = '_';
+    }
+  }
+  return "/tmp/" + program + "_" + std + ".log";
+}
+
+vector<ProgramConf> ConfParser::programConfs()
 {
   set<string> names = programNames();
   vector<ProgramConf> res;
   for (set<string>::iterator it = names.begin(); it != names.end(); ++it) {
     const string section = PROGRAM_PREFIX + *it;
-    string logfile = reader.Get(section, LOG_FILE_KEY, PROGRAM_LOG_DEFAULT);
+    string stdout = reader.Get(section, STDOUT_KEY, makeTmpPath(*it, "stdout"));
+    string stderr = reader.Get(section, STDERR_KEY, makeTmpPath(*it, "stderr"));
     string command = reader.Get(section, COMMAND_KEY, COMMAND_DEFAULT);
     bool autorestart = reader.GetBoolean(section, AUTO_RESTART_KEY, AUTO_RESTART_DEFAULT);
 
@@ -54,7 +65,8 @@ std::vector<ProgramConf> ConfParser::programConfs()
     split(command, commands, ' ');
     res.push_back(ProgramConf {
       *it,
-      logfile,
+      stdout,
+      stderr,
       commands,
       autorestart
     });

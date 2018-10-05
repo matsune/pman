@@ -1,3 +1,6 @@
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <unistd.h>
 #include "defines.h"
 #include "program.hpp"
@@ -5,26 +8,34 @@
 
 bool Program::tooShort()
 {
-  return (time(NULL) - this->startTime_) <= RESTART_MIN_SEC;
+  return (time(NULL) - startTime_) <= RESTART_MIN_SEC;
 }
 
 void Program::started(int pid)
 {
-  this->isRunning_ = true;
-  this->pid_ = pid;
-  ++this->execCount_;
-  time(&this->startTime_);
+  isRunning_ = true;
+  pid_ = pid;
+  ++execCount_;
+  time(&startTime_);
 }
 
 void Program::stopped()
 {
-  this->isRunning_ = false;
-  this->pid_ = 0;
+  isRunning_ = false;
+  pid_ = 0;
 }
 
 void Program::spawn()
 {
-  setRedirect(logfile());
+  close(0);
+  close(1);
+  close(2);
+  int log_fd = open(conf_.stdout.c_str(), O_RDWR|O_CREAT|O_APPEND, 0600);
+  dup2(log_fd, 1);
+  close(log_fd);
+  log_fd = open(conf_.stderr.c_str(), O_RDWR|O_CREAT|O_APPEND, 0600);
+  dup2(log_fd, 2);
+  close(log_fd);
 
   int count = command().size();
   char *args[count + 1];
