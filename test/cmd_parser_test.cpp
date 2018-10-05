@@ -170,6 +170,13 @@ TEST_F(CmdParserTest, RestartWithNoArgs)
   EXPECT_EXIT(parse(), ::testing::ExitedWithCode(1), "");
 }
 
+TEST_F(CmdParserTest, Kill)
+{
+  makeArgs({ "pman", "kill" });
+  parse();
+  EXPECT_EQ(cmd->command(), KILL);
+}
+
 TEST_F(CmdParserTest, UnknownOptions)
 {
   makeArgs({ "pman", "-i", "aaa" });

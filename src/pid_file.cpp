@@ -20,15 +20,25 @@ int PidFile::read()
   return pid;
 }
 
+// Check if pman daemon has already been running in another pid
+//
+// - returns true:
+//  it seems that there is no running daemon
+//
+// - returns false:
+//  1. could not read pidfile
+//  2. running daemon is myself
+//  3. process of that pid doesn't exist.
 bool PidFile::check()
 {
   int pid = read();
 
-  if (!pid || pid == getpid())
-    return false;
+  if (!pid || pid == getpid()) return false;
 
-  if (kill(pid, 0) && errno == ESRCH)
+  if (kill(pid, 0) && errno == ESRCH) {
+    remove();
     return false;
+  }
 
   return true;
 }

@@ -10,6 +10,7 @@
 #include "defines.h"
 #include "pman_service_impl.hpp"
 #include "pman_client.hpp"
+#include "pid_file.hpp"
 
 using namespace std;
 
@@ -71,6 +72,21 @@ int runServer(PmanConf pmanConf, vector<ProgramConf> programConfs)
   return daemon.runLoop();
 }
 
+int killServer(PmanConf pmanConf)
+{
+  PidFile pidFile(pmanConf.pidfile);
+  if (!pidFile.check()) {
+    cerr << "daemon is not running." << endl;
+    return 1;
+  }
+  int pid = pidFile.read();
+  kill(pid, SIGTERM);
+  waitpid(pid, 0, 0);
+  pidFile.remove();
+  cout << "killed pman daemon." << endl;
+  return 0;
+}
+
 int main(int argc, char *argv[])
 {
   CmdParser cmdParser(argc, argv);
@@ -84,6 +100,8 @@ int main(int argc, char *argv[])
 
   if (cmdParser.command() == DAEMON) {
     return runServer(confParser.pmanConf(), confParser.programConfs());
+  } else if (cmdParser.command() == KILL) {
+    return killServer(confParser.pmanConf());
   } else {
     return runClient(confParser.pmanConf().port, cmdParser.command(), cmdParser.program());
   }

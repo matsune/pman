@@ -49,7 +49,7 @@ bool CmdParser::match(const char *str)
 
 bool CmdParser::isCommand()
 {
-  return match("status") || match("start") || match("stop") || match("restart");
+  return match("status") || match("start") || match("stop") || match("restart") || match("kill");
 }
 
 void CmdParser::parseCommand()
@@ -64,6 +64,8 @@ void CmdParser::parseCommand()
     this->command_ = STOP;
   } else if (match("restart")) {
     this->command_ = RESTART;
+  } else if (match("kill")) {
+    this->command_ = KILL;
   }
 
   // parse program name
@@ -157,6 +159,7 @@ std::string CmdParser::usage()
     << "  stop all          \tstop all programs which is running" << endl
     << "  restart <program> \tstop and start program" << endl
     << "  restart all       \trestart all programs" << endl
+    << "  kill              \tkill daemon process" << endl
     << endl
     << "args:" << endl
     << "  --conf, -c <path>\tconfig file path (default: /etc/pman.conf)" << endl;

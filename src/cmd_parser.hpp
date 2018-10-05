@@ -6,7 +6,8 @@ enum Command {
   STATUS,
   START,
   STOP,
-  RESTART
+  RESTART,
+  KILL
 };
 
 class CmdParser {
