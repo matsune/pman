@@ -31,11 +31,8 @@ void Daemon::daemonize()
   }
 
   umask(0);
-
   if (chdir(this->conf_.dir.c_str()) < 0) HANDLE_ERROR("chdir");
-
   if (setsid() < 0) HANDLE_ERROR("setsid");
-
   setRedirect(this->conf_.logfile);
 }
 
@@ -60,15 +57,14 @@ void Daemon::handleSigchld()
 
   do {
     killedPid = waitpid(-1, 0, WNOHANG);
-
     if (killedPid > 0) {
       program = getProgram(killedPid);
-      
+
       if (program) {
         program->stopped();
         LOG << "exited program " << program->name() << " pid " << killedPid << endl;
 
-        if (program->autorestart() && !program->isKilled()) {
+        if (program->autorestart()) {
           if (program->tooShort()) {
             LOG << "The process exited too quickly." << endl;
           } else {
@@ -78,13 +74,6 @@ void Daemon::handleSigchld()
       }
     }
   } while (killedPid > 0);
-}
-
-void Daemon::startAllPrograms()
-{
-  for (auto program = this->programs_.begin(); program != this->programs_.end(); ++program) {
-    startProgram(*program);
-  }
 }
 
 void Daemon::startProgram(string name)
@@ -118,13 +107,6 @@ void Daemon::startProgram(Program &program)
   }
 }
 
-void Daemon::stopAllPrograms()
-{
-  for (auto program = this->programs_.begin(); program != this->programs_.end(); ++program) {
-    stopProgram(*program);
-  }
-}
-
 void Daemon::stopProgram(string name)
 {
   Program *p = getProgram(name);
@@ -138,8 +120,11 @@ void Daemon::stopProgram(Program &program)
     return;
   }
 
-  program.kill();
+  // program.kill();
   kill(program.pid(), SIGTERM);
+  waitpid(program.pid(), 0, 0); // sync
+  program.stopped();
+  LOG << "[Stop] program " << program.name() << endl;
 }
 
 Program *Daemon::getProgram(std::string name)
@@ -192,24 +177,17 @@ int Daemon::runLoop()
       // lock to make thread safe while handling tasks
       lock_guard<mutex> lk(mtx);
 
-      while (!this->tasks_.empty()) {
-        Task *task = this->tasks_.front();
-        if (task->op == Task::Order::START) {
-          if (task->name == "all") {
-            startAllPrograms();
-          } else {
-            startProgram(task->name);
-          }
-        } else if (task->op == Task::Order::STOP) {
-          if (task->name == "all") {
-            stopAllPrograms();
-          } else {
-            stopProgram(task->name);
-          }
+      while (!tasks_.empty()) {
+        Task task = tasks_.front();
+        if (task.op == Task::Order::START) {
+          startProgram(task.name);
+        } else if (task.op == Task::Order::STOP) {
+          Program *p = getProgram(task.name);
+          stopProgram(*p);
         }
 
-        this->tasks_.pop();
-        task->cv.notify_one();
+        tasks_.pop();
+        task.cv.notify_one();
       }
     }
 
@@ -227,10 +205,9 @@ int Daemon::runLoop()
 
 bool Daemon::hasTaskId(int id)
 {
-  // :(
-  queue<Task *> t = this->tasks_;
+  queue<Task> t = tasks_;
   while(!t.empty()) {
-    if (t.front()->id == id) return true;
+    if (t.front().requestId == id) return true;
     t.pop();
   }
   return false;

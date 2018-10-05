@@ -15,19 +15,16 @@ private:
   PmanConf conf_;
   PidFile pidFile_;
   std::vector<Program> programs_;
-  std::queue<Task *> tasks_;
+  std::queue<Task> tasks_;
 
   void daemonize();
   void registerAbrt();
   void registerSigchld();
   void handleSigchld();
-  Program *getProgram(std::string name);
   Program *getProgram(int pid);
   void cleanup();
-  void startAllPrograms();
   void startProgram(Program &program);
   void startProgram(std::string name);
-  void stopAllPrograms();
   void stopProgram(Program &program);
   void stopProgram(std::string name);
 
@@ -37,7 +34,8 @@ public:
 
   void setup();
   int runLoop();
-  void pushTask(Task *t) { this->tasks_.push(t); }
+  void pushTask(Task t) { this->tasks_.push(t); }
   bool hasTaskId(int id);
   std::vector<Program> programs() { return this->programs_; }
+  Program *getProgram(std::string name);
 };

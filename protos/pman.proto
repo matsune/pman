@@ -24,11 +24,23 @@ message StopRequest {
 }
 
 message ProgramStatusReply {
-  string name = 1;
-
-  enum Status {
+  enum State {
     STOPPING = 0;
     RUNNING = 1;
   }
-  Status status = 2;
+  enum ErrorStatus {
+    OK = 0;
+    NO_PROGRAMS = 1;
+    NO_SUCH_PROGRAM = 2;
+    ALREADY_STOPPING = 3;
+    ALREADY_RUNNING = 4;
+  }
+  message Error {
+    ErrorStatus status = 1;
+    string message = 2;
+  }
+
+  string name = 1;
+  State state = 2;
+  Error error = 3;
 }

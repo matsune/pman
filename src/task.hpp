@@ -10,11 +10,11 @@ struct Task {
     STOP
   };
 
-  int id;
+  int requestId;
   std::condition_variable &cv;
   Order op;
   std::string name;
 
-  Task(std::condition_variable &cv, Order op, std::string name)
-    : id(currentId++), cv(cv), op(op), name(name) {}
+  Task(int id, std::condition_variable &cv, Order op, std::string name)
+    : requestId(id), cv(cv), op(op), name(name) {}
 };

@@ -28,4 +28,6 @@ public:
 private:
   Daemon &daemon;
   void writeStatus(grpc::ServerWriter<pman::ProgramStatusReply>* writer, std::string name);
+  void writeError(grpc::ServerWriter<pman::ProgramStatusReply>* writer, pman::ProgramStatusReply_ErrorStatus status, std::string message);
+  static int currentId;
 };

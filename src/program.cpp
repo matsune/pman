@@ -8,11 +8,9 @@ bool Program::tooShort()
   return (time(NULL) - this->startTime_) <= RESTART_MIN_SEC;
 }
 
-
 void Program::started(int pid)
 {
   this->isRunning_ = true;
-  this->isKilled_ = false;
   this->pid_ = pid;
   ++this->execCount_;
   time(&this->startTime_);

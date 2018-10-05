@@ -59,6 +59,10 @@ Status PmanClient::StopProgram(const std::string name)
 
 void PmanClient::printStatus(ProgramStatusReply reply)
 {
-  std::string state = reply.status() == pman::ProgramStatusReply_Status_STOPPING ? "Stopping" : "Running";
-  std::cout << "[" << reply.name() << "] status: " << state << std::endl;
+  if (reply.error().status() == ::pman::ProgramStatusReply_ErrorStatus_OK) {
+    std::string state = reply.state() == pman::ProgramStatusReply_State_STOPPING ? "Stopping" : "Running";
+    std::cout << "[" << reply.name() << "] status: " << state << std::endl;
+  } else {
+    std::cout << reply.error().message() << std::endl;
+  }
 }
