@@ -171,6 +171,10 @@ void Daemon::setup()
 
 int Daemon::runLoop()
 {
+  for (auto program = this->programs_.begin(); program != this->programs_.end(); ++program) {
+    if (program->autostart()) startProgram(*program);
+  }
+
   while (!abrt_status) {
     sleep(1);
 

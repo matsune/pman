@@ -25,3 +25,5 @@
 #define COMMAND_DEFAULT ""
 #define AUTO_RESTART_KEY "autorestart"
 #define AUTO_RESTART_DEFAULT true
+#define AUTO_START_KEY "autostart"
+#define AUTO_START_DEFAULT true

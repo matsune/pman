@@ -19,6 +19,7 @@ public:
   bool isRunning() { return this->isRunning_; }
   int pid() { return this->pid_; }
   bool autorestart() { return this->conf_.autorestart; }
+  bool autostart() { return this->conf_.autostart; }
   time_t uptime() { return time(NULL) - startTime_; }
   void started(int pid);
   void stopped();

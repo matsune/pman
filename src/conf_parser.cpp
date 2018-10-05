@@ -60,6 +60,7 @@ vector<ProgramConf> ConfParser::programConfs()
     string stderr = reader.Get(section, STDERR_KEY, makeTmpPath(*it, "stderr"));
     string command = reader.Get(section, COMMAND_KEY, COMMAND_DEFAULT);
     bool autorestart = reader.GetBoolean(section, AUTO_RESTART_KEY, AUTO_RESTART_DEFAULT);
+    bool autostart = reader.GetBoolean(section, AUTO_START_KEY, AUTO_START_DEFAULT);
 
     vector<string> commands;
     split(command, commands, ' ');
@@ -68,7 +69,8 @@ vector<ProgramConf> ConfParser::programConfs()
       stdout,
       stderr,
       commands,
-      autorestart
+      autorestart,
+      autostart
     });
   }
   return res;

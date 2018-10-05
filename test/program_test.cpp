@@ -26,7 +26,8 @@ TEST_F(ProgramTest, test)
     "program1_stdout",
     "program1_stderr",
     {"this", "is", "command"},
-    true // autorestart
+    true, // autorestart
+    false // autostart
   });
   EXPECT_EQ(p->name(), "program1");
   ASSERT_EQ(p->command().size(), 3);
@@ -36,6 +37,7 @@ TEST_F(ProgramTest, test)
   EXPECT_EQ(p->pid(), 0);
   EXPECT_FALSE(p->isRunning());
   EXPECT_TRUE(p->autorestart());
+  EXPECT_FALSE(p->autostart());
 
   int pid = 100;
   p->started(pid);
