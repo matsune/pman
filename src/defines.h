@@ -13,7 +13,7 @@
 #define PID_FILE_KEY "pidfile"
 #define PID_FILE_DEFAULT "pman.pid"
 #define LOG_FILE_KEY "logfile"
-#define DAEMON_LOG_DEFAULT "pman.log"
+#define DAEMON_LOG_DEFAULT "/dev/null"
 #define DIR_KEY "directory"
 #define DIR_DEFAULT "/tmp"
 #define PORT_KEY "port"
