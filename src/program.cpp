@@ -6,16 +6,10 @@
 #include "program.hpp"
 #include "util.hpp"
 
-bool Program::tooShort()
-{
-  return (time(NULL) - startTime_) <= RESTART_MIN_SEC;
-}
-
 void Program::started(int pid)
 {
   isRunning_ = true;
   pid_ = pid;
-  ++execCount_;
   time(&startTime_);
 }
 

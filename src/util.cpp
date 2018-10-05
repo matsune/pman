@@ -32,6 +32,6 @@ std::string nowString(const char* format)
 {
   time_t t = time(0) ;
   char cstr[128] ;
-  strftime( cstr, sizeof(cstr), format, localtime(&t) ) ;
+  strftime(cstr, sizeof(cstr), format, localtime(&t));
   return cstr ;
 }

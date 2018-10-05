@@ -10,9 +10,9 @@ using namespace std;
 namespace {
   volatile std::sig_atomic_t abrt_status;
   volatile std::sig_atomic_t sigchld_status;
+  void abrt_handler(int signal) { abrt_status = signal; };
+  void sigchld_handler(int signal) { sigchld_status = signal; };
 }
-void abrt_handler(int signal) { abrt_status = signal; };
-void sigchld_handler(int signal) { sigchld_status = signal; };
 
 Daemon::Daemon(PmanConf conf, std::vector<ProgramConf> programConfs)
   : conf_(conf), pidFile_(PidFile(conf.pidfile))
@@ -72,7 +72,7 @@ void Daemon::handleSigchld()
         LOG << "exited program " << program->name() << " pid " << killedPid << endl;
 
         if (program->autorestart()) {
-          if (program->tooShort()) {
+          if (program->uptime() <= RESTART_MIN_SEC) {
             LOG << "The process exited too quickly." << endl;
           } else {
             startProgram(*program);
@@ -103,14 +103,9 @@ void Daemon::startProgram(Program &program)
         program.spawn();
         break;
     default:
-      if (program.execCount() == 0) {
-        LOG << "[Start] ";
-      } else {
-        LOG << "[Restart] ";
-      }
       // - FIXME: should wait until forked process completely executed
       program.started(child_pid);
-      cout << "program " << program.name() << " pid: " << child_pid << endl;
+      LOG << "[Start] program " << program.name() << " pid: " << child_pid << endl;
   }
 }
 

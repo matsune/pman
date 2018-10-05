@@ -70,8 +70,8 @@ void CmdParser::parseCommand()
 
   // parse program name
 
-  // `start` and `stop` command requires program name.
-  // `status` command allows empty, then called `status all` by default.
+  // `start`, `stop` and `restart` commands require program name.
+  // `status` command allows empty, then called `status all` implicitly.
   if (!hasNext()) {
     switch (command()) {
       case START:
@@ -151,6 +151,7 @@ std::string CmdParser::usage()
   os << "usage: pman [--version | -v] [--help | -h]" << endl
     << "\t    <command> [<args>]" << endl
     << "command:" << endl
+    << "  <no command>      \tstart daemon" << endl
     << "  status <program>  \tshow status" << endl
     << "  status all        \tshow status of all programs" << endl
     << "  start <program>   \tstart program" << endl
