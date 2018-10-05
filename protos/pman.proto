@@ -23,6 +23,10 @@ message StopRequest {
   string name = 1;
 }
 
+message RestartRequest {
+  string name = 1;
+}
+
 message ProgramStatusReply {
   enum State {
     STOPPING = 0;

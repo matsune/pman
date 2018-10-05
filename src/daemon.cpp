@@ -120,7 +120,6 @@ void Daemon::stopProgram(Program &program)
     return;
   }
 
-  // program.kill();
   kill(program.pid(), SIGTERM);
   waitpid(program.pid(), 0, 0); // sync
   program.stopped();
