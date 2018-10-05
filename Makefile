@@ -153,7 +153,8 @@ $(TEST_TARGET): $(INI_OBJS) $(TEST_OBJS) $(LIB_DIR)/gtest_main.a
 		$(SRC_DIR)/cmd_parser.o \
 		$(SRC_DIR)/util.o \
 		$(SRC_DIR)/conf_parser.o \
-		$(SRC_DIR)/pid_file.o
+		$(SRC_DIR)/pid_file.o \
+		$(SRC_DIR)/program.o
 
 $(TEST_DIR)/%.o: $(TEST_DIR)/%.cpp $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS)$(TEST_FLAGS) $(CXXFLAGS) $(INCS) -o $@ -c $<
