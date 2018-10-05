@@ -28,6 +28,9 @@ int runClient(string port, Command c, string program)
     case STOP:
       status = client.StopProgram(program);
       break;
+    case RESTART:
+      status = client.RestartProgram(program);
+      break;
     default:
       return 0;
   }
@@ -61,7 +64,7 @@ int runServer(PmanConf pmanConf, vector<ProgramConf> programConfs)
   */
   Daemon daemon(pmanConf, programConfs);
   daemon.setup();
-  
+
   LOG << "Start pman" << endl;
 
   thread(rungRPCServer, pmanConf.port, ref(daemon)).detach();

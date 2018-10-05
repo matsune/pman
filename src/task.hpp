@@ -7,7 +7,8 @@ struct Task {
 
   enum Order {
     START,
-    STOP
+    STOP,
+    RESTART
   };
 
   int requestId;

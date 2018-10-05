@@ -25,6 +25,12 @@ public:
     ::grpc::ServerWriter< ::pman::ProgramStatusReply>* writer
   );
 
+  ::grpc::Status RestartProgram(
+    ::grpc::ServerContext* context,
+    const ::pman::RestartRequest* request,
+    ::grpc::ServerWriter< ::pman::ProgramStatusReply>* writer
+  );
+
 private:
   Daemon &daemon;
   void writeStatus(grpc::ServerWriter<pman::ProgramStatusReply>* writer, std::string name);

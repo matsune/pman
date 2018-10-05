@@ -5,7 +5,8 @@ enum Command {
   DAEMON,
   STATUS,
   START,
-  STOP
+  STOP,
+  RESTART
 };
 
 class CmdParser {

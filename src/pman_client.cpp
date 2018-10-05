@@ -8,6 +8,7 @@ using grpc::ClientReader;
 
 using pman::StatusRequest;
 using pman::StartRequest;
+using pman::RestartRequest;
 using pman::StopRequest;
 using pman::ProgramStatusReply;
 using pman::Pman;
@@ -50,6 +51,21 @@ Status PmanClient::StopProgram(const std::string name)
   req.set_name(name);
   std::unique_ptr<ClientReader<ProgramStatusReply>> reader(
     stub_->StopProgram(&context, req)
+  );
+  while (reader->Read(&reply)) {
+    printStatus(reply);
+  }
+  return reader->Finish();
+}
+
+Status PmanClient::RestartProgram(const std::string name)
+{
+  ClientContext context;
+  ProgramStatusReply reply;
+  RestartRequest req;
+  req.set_name(name);
+  std::unique_ptr<ClientReader<ProgramStatusReply>> reader(
+    stub_->RestartProgram(&context, req)
   );
   while (reader->Read(&reply)) {
     printStatus(reply);

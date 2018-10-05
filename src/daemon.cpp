@@ -178,11 +178,17 @@ int Daemon::runLoop()
 
       while (!tasks_.empty()) {
         Task task = tasks_.front();
-        if (task.op == Task::Order::START) {
-          startProgram(task.name);
-        } else if (task.op == Task::Order::STOP) {
-          Program *p = getProgram(task.name);
-          stopProgram(*p);
+        switch (task.op) {
+          case Task::Order::START:
+            startProgram(task.name);
+            break;
+          case Task::Order::STOP:
+            stopProgram(*getProgram(task.name));
+            break;
+          case Task::Order::RESTART:
+            stopProgram(*getProgram(task.name));
+            startProgram(*getProgram(task.name));
+            break;
         }
 
         tasks_.pop();

@@ -49,7 +49,7 @@ bool CmdParser::match(const char *str)
 
 bool CmdParser::isCommand()
 {
-  return match("status") || match("start") || match("stop");
+  return match("status") || match("start") || match("stop") || match("restart");
 }
 
 void CmdParser::parseCommand()
@@ -62,6 +62,8 @@ void CmdParser::parseCommand()
     this->command_ = START;
   } else if (match("stop")) {
     this->command_ = STOP;
+  } else if (match("restart")) {
+    this->command_ = RESTART;
   }
 
   // parse program name
@@ -83,7 +85,7 @@ void CmdParser::parseCommand()
   consume();
 
   if (isArgs()) {
-    if (command() == START || command() == STOP) {
+    if (command() == START || command() == STOP || command() == RESTART) {
       cerr << "requires program name" << endl;
       exit(1);
     } else {

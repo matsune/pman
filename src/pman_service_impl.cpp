@@ -146,3 +146,40 @@ Status PmanServiceImpl::StopProgram(
 
   return Status::OK;
 }
+
+Status PmanServiceImpl::RestartProgram(
+  ServerContext* context,
+  const RestartRequest* request,
+  ServerWriter< ProgramStatusReply>* writer)
+{
+  std::unique_lock<std::mutex> lk(daemon.mtx);
+  std::condition_variable cv;
+  int requestId = currentId++;
+
+  if (request->name() == "all") {
+    if (daemon.programs().empty()) {
+      writeError(writer, ProgramStatusReply_ErrorStatus_NO_PROGRAMS, "no programs");
+      return Status::OK;
+    }
+
+    for (auto p : daemon.programs()) {
+      Task t(requestId, cv, Task::Order::RESTART, p.name());
+      daemon.pushTask(t);
+    }
+  } else {
+    Program *p = daemon.getProgram(request->name());
+    if (!p) {
+      writeError(writer, ProgramStatusReply_ErrorStatus_NO_SUCH_PROGRAM, "no such program");
+      return Status::OK;
+    }
+
+    Task t(requestId, cv, Task::Order::RESTART, p->name());
+    daemon.pushTask(t);
+  }
+
+  cv.wait(lk, [&]{ return !daemon.hasTaskId(requestId); });
+
+  writeStatus(writer, request->name());
+
+  return Status::OK;
+}

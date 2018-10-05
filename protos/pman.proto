@@ -9,6 +9,7 @@ service Pman {
   rpc ProgramStatus (StatusRequest) returns (stream ProgramStatusReply) {}
   rpc StartProgram (StartRequest) returns (stream ProgramStatusReply) {}
   rpc StopProgram (StopRequest) returns (stream ProgramStatusReply) {}
+  rpc RestartProgram (RestartRequest) returns (stream ProgramStatusReply) {}
 }
 
 message StatusRequest {
