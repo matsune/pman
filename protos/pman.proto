@@ -29,10 +29,6 @@ message RestartRequest {
 }
 
 message ProgramStatusReply {
-  enum State {
-    STOPPING = 0;
-    RUNNING = 1;
-  }
   enum ErrorStatus {
     OK = 0;
     NO_PROGRAMS = 1;
@@ -40,12 +36,20 @@ message ProgramStatusReply {
     ALREADY_STOPPING = 3;
     ALREADY_RUNNING = 4;
   }
+
   message Error {
     ErrorStatus status = 1;
     string message = 2;
   }
 
-  string name = 1;
-  State state = 2;
-  Error error = 3;
+  enum State {
+    STOPPING = 0;
+    RUNNING = 1;
+  }
+
+  Error error = 1;
+  string name = 2;
+  State state = 3;
+  int32 pid = 4;
+  int64 uptime = 5;
 }

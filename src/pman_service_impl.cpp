@@ -24,6 +24,8 @@ void PmanServiceImpl::writeStatus(ServerWriter<ProgramStatusReply>* writer, std:
     if (name == "all" || p.name() == name) {
       reply.set_name(p.name());
       reply.set_state(p.isRunning() ? pman::ProgramStatusReply_State_RUNNING : pman::ProgramStatusReply_State_STOPPING);
+      reply.set_pid(p.pid());
+      reply.set_uptime(p.uptime());
       writer->Write(reply);
     }
   }
