@@ -69,7 +69,7 @@ void Daemon::handleSigchld()
 
       if (program) {
         program->stopped();
-        LOG << "exited program " << program->name() << " pid " << killedPid << endl;
+        LOG << "[Exited] program:" << program->name() << "  pid:" << killedPid << endl;
 
         if (program->autorestart()) {
           if (program->uptime() <= RESTART_MIN_SEC) {
@@ -92,7 +92,7 @@ void Daemon::startProgram(string name)
 void Daemon::startProgram(Program &program)
 {
   if (program.isRunning()) {
-    LOG << "program " << program.name() << " is already running." << endl;
+    LOG << "program:" << program.name() << " is already running." << endl;
     return;
   }
 
@@ -105,7 +105,7 @@ void Daemon::startProgram(Program &program)
     default:
       // - FIXME: should wait until forked process completely executed
       program.started(child_pid);
-      LOG << "[Start] program " << program.name() << " pid: " << child_pid << endl;
+      LOG << "[Start] program:" << program.name() << "  pid:" << child_pid << endl;
   }
 }
 
@@ -118,14 +118,15 @@ void Daemon::stopProgram(string name)
 void Daemon::stopProgram(Program &program)
 {
   if (!program.isRunning()) {
-    LOG << "program " << program.name() << " is not running." << endl;
+    LOG << "program:" << program.name() << " is not running." << endl;
     return;
   }
 
-  kill(program.pid(), SIGTERM);
-  waitpid(program.pid(), 0, 0); // sync
+  int pid = program.pid();
+  kill(pid, SIGTERM);
+  waitpid(pid, 0, 0); // sync
   program.stopped();
-  LOG << "[Stop] program " << program.name() << endl;
+  LOG << "[Stop] program:" << program.name() << "  pid:" << pid << endl;
 }
 
 Program *Daemon::getProgram(std::string name)
@@ -159,7 +160,7 @@ void Daemon::cleanup()
 void Daemon::setup()
 {
   if (this->pidFile_.check()) {
-    cerr << "pman daemon is already running (pid: " << this->pidFile_.read() << ")" << endl;
+    cerr << "pman daemon is already running at pid " << this->pidFile_.read() << endl;
     exit(1);
   }
 

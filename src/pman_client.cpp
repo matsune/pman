@@ -1,4 +1,5 @@
 #include "pman_client.hpp"
+#include "util.hpp"
 
 using grpc::ServerBuilder;
 using grpc::Status;
@@ -76,8 +77,11 @@ Status PmanClient::RestartProgram(const std::string name)
 void PmanClient::printStatus(ProgramStatusReply reply)
 {
   if (reply.error().status() == ::pman::ProgramStatusReply_ErrorStatus_OK) {
-    std::string state = reply.state() == pman::ProgramStatusReply_State_STOPPING ? "Stopping" : "Running";
-    std::cout << "[" << reply.name() << "] status: " << state << std::endl;
+    if (reply.state() == pman::ProgramStatusReply_State_STOPPING) {
+      std::cout << "[" << reply.name() << "] \033[31mSTOPPING\033[0m" << std::endl;
+    } else {
+      std::cout << "[" << reply.name() << "] \033[32mRUNNING\033[0m \tpid: " << reply.pid() << "\tuptime: " << uptimeString(reply.uptime()) << std::endl;
+    }
   } else {
     std::cout << reply.error().message() << std::endl;
   }

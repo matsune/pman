@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
 
   ConfParser confParser(cmdParser.conffile());
   if (confParser.ParseError()) {
-    cerr << "cannot load conf file: " << cmdParser.conffile() << endl;
+    cerr << "could not load conf file: " << cmdParser.conffile() << endl;
     return 1;
   }
 

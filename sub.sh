@@ -1,5 +1,5 @@
 #!/bin/sh
-TIME=$(( $RANDOM % 5 ))
+TIME=100 #$(( $RANDOM % 5 ))
 echo "start sub.sh $1"
 echo "sleep $TIME"
 sleep $TIME
