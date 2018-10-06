@@ -3,6 +3,8 @@
 #include <sys/stat.h>
 #include <vector>
 #include <string>
+#include <sstream>
+#include <iomanip>
 #include <unistd.h>
 #include "defines.h"
 
@@ -34,4 +36,19 @@ std::string nowString(const char* format)
   char cstr[128] ;
   strftime(cstr, sizeof(cstr), format, localtime(&t));
   return cstr ;
+}
+
+std::string uptimeString(time_t sec)
+{
+  tm *p = gmtime(&sec);
+  std::ostringstream oss;
+  if (p->tm_yday == 1) {
+    oss << p->tm_yday << "day ";
+  } else if (p->tm_yday > 1) {
+    oss << p->tm_yday << "days ";
+  }
+  oss << std::setw(2) << std::setfill('0') << p->tm_hour << ":";
+  oss << std::setw(2) << std::setfill('0') << p->tm_min << ":";
+  oss << std::setw(2) << std::setfill('0') << p->tm_sec;
+  return oss.str();
 }

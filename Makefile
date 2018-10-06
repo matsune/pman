@@ -146,15 +146,17 @@ $(LIB_DIR)/gtest_main.a : $(TEST_DIR)/gtest-all.o $(TEST_DIR)/gtest_main.o
 test: $(TEST_TARGET)
 	./$(TEST_TARGET)
 
-$(TEST_TARGET): $(INI_OBJS) $(TEST_OBJS) $(LIB_DIR)/gtest_main.a
+TEST_INCLUDE_SRCS = $(SRC_DIR)/cmd_parser.o \
+	$(SRC_DIR)/util.o \
+	$(SRC_DIR)/conf_parser.o \
+	$(SRC_DIR)/pid_file.o \
+	$(SRC_DIR)/program.o
+
+$(TEST_TARGET): $(INI_OBJS) $(TEST_INCLUDE_SRCS) $(TEST_OBJS) $(LIB_DIR)/gtest_main.a
 	@[ -d $(BIN_DIR) ] || mkdir -p $(BIN_DIR)
 	$(CXX) $(LDFLAGS) -o $@ $(TEST_OBJS) $(LIB_DIR)/gtest_main.a $(LIBS) -lpthread \
-		$(INI_OBJS) \
-		$(SRC_DIR)/cmd_parser.o \
-		$(SRC_DIR)/util.o \
-		$(SRC_DIR)/conf_parser.o \
-		$(SRC_DIR)/pid_file.o \
-		$(SRC_DIR)/program.o
+		$(INI_OBJS) $(TEST_INCLUDE_SRCS)
+
 
 $(TEST_DIR)/%.o: $(TEST_DIR)/%.cpp $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS)$(TEST_FLAGS) $(CXXFLAGS) $(INCS) -o $@ -c $<
