@@ -1,4 +1,6 @@
 #include <string>
+#include <string.h>
+#include <assert.h>
 #include <iostream>
 #include <sstream>
 #include "defines.h"

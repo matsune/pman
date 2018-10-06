@@ -40,7 +40,7 @@ all: system-check $(TARGET)
 
 $(TARGET): $(INI_OBJS) $(PROTO_OBJS) $(OBJS)
 	@[ -d $(BIN_DIR) ] || mkdir -p $(BIN_DIR)
-	$(CXX) $(INCLUDES) $(LDFLAGS) -o $@ $^
+	$(CXX) $^ $(INCLUDES) $(LDFLAGS) -o $@   
 
 .PHONY: protos
 protos: $(PROTO_OBJS)

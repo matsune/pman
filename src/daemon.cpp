@@ -2,6 +2,8 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #include "defines.h"
 #include "daemon.hpp"
 

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <algorithm>
 #include "defines.h"
 #include "util.hpp"
 #include "conf_parser.hpp"

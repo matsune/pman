@@ -3,6 +3,8 @@
 #include <memory>
 #include <thread>
 #include <mutex>
+#include <sys/types.h>
+#include <sys/wait.h>
 #include <grpcpp/grpcpp.h>
 #include "cmd_parser.hpp"
 #include "conf_parser.hpp"
