@@ -14,12 +14,12 @@ private:
 public:
   Program(ProgramConf conf)
     : conf_(conf), isRunning_(false), pid_(0), startTime_(0) {}
-  std::string name() { return this->conf_.name; }
-  std::vector<std::string> command() { return this->conf_.command; }
-  bool isRunning() { return this->isRunning_; }
-  int pid() { return this->pid_; }
-  bool autorestart() { return this->conf_.autorestart; }
-  bool autostart() { return this->conf_.autostart; }
+  std::string name() { return conf_.name(); }
+  std::vector<std::string> command() { return conf_.command(); }
+  bool isRunning() { return isRunning_; }
+  int pid() { return pid_; }
+  bool autorestart() { return conf_.autorestart(); }
+  bool autostart() { return conf_.autostart(); }
   time_t uptime() { return time(NULL) - startTime_; }
   void started(int pid);
   void stopped();

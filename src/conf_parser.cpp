@@ -13,12 +13,12 @@ bool ConfParser::ParseError()
 
 PmanConf ConfParser::pmanConf()
 {
-  return PmanConf {
+  return PmanConf (
     reader.Get(PMAN_SECTION, PID_FILE_KEY, PID_FILE_DEFAULT),
     reader.Get(PMAN_SECTION, LOG_FILE_KEY, DAEMON_LOG_DEFAULT),
     reader.Get(PMAN_SECTION, DIR_KEY, DIR_DEFAULT),
-    reader.Get(PMAN_SECTION, PORT_KEY, PORT_DEFAULT),
-  };
+    reader.Get(PMAN_SECTION, PORT_KEY, PORT_DEFAULT)
+  );
 }
 
 set<string> ConfParser::programNames()
@@ -65,14 +65,16 @@ vector<ProgramConf> ConfParser::programConfs()
 
     vector<string> commands;
     split(command, commands, ' ');
-    res.push_back(ProgramConf {
-      *it,
-      stdout,
-      stderr,
-      commands,
-      autorestart,
-      autostart
-    });
+    res.push_back(
+      ProgramConf (
+        *it,
+        stdout,
+        stderr,
+        commands,
+        autorestart,
+        autostart
+      )
+    );
   }
   return res;
 }

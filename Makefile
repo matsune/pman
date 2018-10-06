@@ -40,7 +40,7 @@ all: system-check $(TARGET)
 
 $(TARGET): $(INI_OBJS) $(PROTO_OBJS) $(OBJS)
 	@[ -d $(BIN_DIR) ] || mkdir -p $(BIN_DIR)
-	$(CXX) $^ $(INCLUDES) $(LDFLAGS) -o $@   
+	$(CXX) $^ $(INCLUDES) $(LDFLAGS) -o $@
 
 .PHONY: protos
 protos: $(PROTO_OBJS)
@@ -150,7 +150,8 @@ TEST_INCLUDE_SRCS = $(SRC_DIR)/cmd_parser.o \
 	$(SRC_DIR)/util.o \
 	$(SRC_DIR)/conf_parser.o \
 	$(SRC_DIR)/pid_file.o \
-	$(SRC_DIR)/program.o
+	$(SRC_DIR)/program.o \
+	$(SRC_DIR)/conf.o
 
 $(TEST_TARGET): $(INI_OBJS) $(TEST_INCLUDE_SRCS) $(TEST_OBJS) $(LIB_DIR)/gtest_main.a
 	@[ -d $(BIN_DIR) ] || mkdir -p $(BIN_DIR)

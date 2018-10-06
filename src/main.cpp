@@ -41,14 +41,14 @@ int runServer(PmanConf pmanConf, vector<ProgramConf> programConfs)
 
   LOG << "Start pman daemon..." << endl;
 
-  thread(rungRPCServer, pmanConf.port, ref(daemon)).detach();
+  thread(rungRPCServer, pmanConf.port(), ref(daemon)).detach();
 
   return daemon.runLoop();
 }
 
 int killServer(PmanConf pmanConf)
 {
-  PidFile pidFile(pmanConf.pidfile);
+  PidFile pidFile(pmanConf.pidfile());
   if (!pidFile.check()) {
     cerr << "daemon is not running." << endl;
     return 1;
@@ -104,6 +104,6 @@ int main(int argc, char *argv[])
   } else if (cmdParser.command() == KILL) {
     return killServer(confParser.pmanConf());
   } else {
-    return runClient(confParser.pmanConf().port, cmdParser.command(), cmdParser.program());
+    return runClient(confParser.pmanConf().port(), cmdParser.command(), cmdParser.program());
   }
 }

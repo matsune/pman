@@ -21,15 +21,7 @@ void Program::stopped()
 
 void Program::spawn()
 {
-  close(0);
-  close(1);
-  close(2);
-  int log_fd = open(conf_.stdout.c_str(), O_RDWR|O_CREAT|O_APPEND, 0600);
-  dup2(log_fd, 1);
-  close(log_fd);
-  log_fd = open(conf_.stderr.c_str(), O_RDWR|O_CREAT|O_APPEND, 0600);
-  dup2(log_fd, 2);
-  close(log_fd);
+  conf_.setLogfile();
 
   int count = command().size();
   char *args[count + 1];
