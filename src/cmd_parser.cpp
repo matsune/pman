@@ -3,10 +3,22 @@
 #include <assert.h>
 #include <iostream>
 #include <sstream>
+#include <map>
 #include "defines.h"
 #include "cmd_parser.hpp"
 
 using namespace std;
+
+namespace {
+  map<string, Command> commandMap = {
+    {"status", STATUS},
+    {"start", START},
+    {"stop", STOP},
+    {"restart", RESTART},
+    {"kill", KILL},
+    {"echo", ECHO}
+  };
+}
 
 void CmdParser::parse()
 {
@@ -51,24 +63,14 @@ bool CmdParser::match(const char *str)
 
 bool CmdParser::isCommand()
 {
-  return match("status") || match("start") || match("stop") || match("restart") || match("kill");
+  return commandMap.count(current()) > 0;
 }
 
 void CmdParser::parseCommand()
 {
   assert(isCommand());
 
-  if (match("status")) {
-    this->command_ = STATUS;
-  } else if (match("start")) {
-    this->command_ = START;
-  } else if (match("stop")) {
-    this->command_ = STOP;
-  } else if (match("restart")) {
-    this->command_ = RESTART;
-  } else if (match("kill")) {
-    this->command_ = KILL;
-  }
+  command_ = commandMap.at(current());
 
   // parse program name
 
@@ -89,7 +91,7 @@ void CmdParser::parseCommand()
 
   consume();
 
-  if (isArgs()) {
+  if (isConf()) {
     if (command() == START || command() == STOP || command() == RESTART) {
       cerr << "requires program name" << endl;
       exit(1);
@@ -97,14 +99,12 @@ void CmdParser::parseCommand()
       back();
       return;
     }
+  } else if (isHelp()) {
+    cout << usage() << endl;
+    exit(0);
   }
 
   this->program_ = string(current());
-}
-
-bool CmdParser::isArgs()
-{
-  return isConf();
 }
 
 bool CmdParser::isConf()
@@ -147,24 +147,76 @@ void CmdParser::showVersion()
   cout << "pman version " << PMAN_VERSION << endl;
 }
 
+string CmdParser::getCommandStr()
+{
+  switch (command_) {
+    case DAEMON:
+      return "daemon";
+    case STATUS:
+      return "status";
+    case START:
+      return "start";
+    case STOP:
+      return "stop";
+    case RESTART:
+      return "restart";
+    case KILL:
+      return "kill";
+    case ECHO:
+      return "echo";
+  }
+}
+
 std::string CmdParser::usage()
 {
   std::ostringstream os;
-  os << "usage: pman [--version | -v] [--help | -h]" << endl
-    << "\t    <command> [<args>]" << endl
-    << "command:" << endl
-    << "  <no command>      \tstart daemon" << endl
-    << "  status <program>  \tshow status" << endl
-    << "  status all        \tshow status of all programs" << endl
-    << "  start <program>   \tstart program" << endl
-    << "  start all         \tstart all programs which is not running" << endl
-    << "  stop <program>    \tstop program" << endl
-    << "  stop all          \tstop all programs which is running" << endl
-    << "  restart <program> \tstop and start program" << endl
-    << "  restart all       \trestart all programs" << endl
-    << "  kill              \tkill daemon process" << endl
-    << endl
-    << "args:" << endl
-    << "  --conf, -c <path>\tconfig file path (default: /etc/pman.conf)" << endl;
+  switch (command_) {
+    case DAEMON:
+      os << "usage: pman [--version | -v]" << endl
+        << "\t    <command> <args>" << endl
+        << "command:" << endl
+        << "  <no command>      \tstart daemon" << endl
+        << "  status <program>  \tshow status" << endl
+        << "  start <program>   \tstart program" << endl
+        << "  stop <program>    \tstop program" << endl
+        << "  restart <program> \tstop and start program" << endl
+        << "  kill              \tkill daemon process" << endl
+        << "  echo              \techo default conf" << endl
+        << endl
+        << "args:" << endl
+        << "  --conf, -c <path>\tconfig file path (default: /etc/pman.conf)" << endl
+        << "  --help, -h       \tshow help" << endl;
+        break;
+    case KILL:
+      os << "usage: pman kill <args>" << endl
+        << endl
+        << "  kill running daemon process" << endl
+        << endl
+        << "args:" << endl
+        << "  --conf, -c <path>\trunning daemon's config file path" << endl
+        << "  --help, -h       \tshow help" << endl;
+        break;
+    case ECHO:
+      os << "usage: pman echo <args>" << endl
+        << endl
+        << "  echo default conf" << endl
+        << endl
+        << "args:" << endl
+        << "  --help, -h       \tshow help" << endl;
+        break;
+    case STATUS:
+    case START:
+    case STOP:
+    case RESTART:
+      os << "usage: pman " << getCommandStr() << " <program> <args>" << endl
+        << endl
+        << "  " << getCommandStr() << " <program>  \t" << getCommandStr() << " program" << endl
+        << "  " << getCommandStr() << " all        \t" << getCommandStr() << " all programs" << endl
+        << endl
+        << "args:" << endl
+        << "  --conf, -c <path>\tconfig file path (default: /etc/pman.conf)" << endl
+        << "  --help, -h       \tshow help" << endl;
+      break;
+  }
   return os.str();
 }

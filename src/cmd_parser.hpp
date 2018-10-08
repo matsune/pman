@@ -7,7 +7,8 @@ enum Command {
   START,
   STOP,
   RESTART,
-  KILL
+  KILL,
+  ECHO
 };
 
 class CmdParser {
@@ -26,12 +27,12 @@ private:
   bool match(const char *str);
   bool isCommand();
   void parseCommand();
-  bool isArgs();
   void parseArgs();
   bool isConf();
   bool isVersion();
   bool isHelp();
   void showVersion();
+  std::string getCommandStr();
   std::string usage();
 
 public:

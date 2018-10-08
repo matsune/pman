@@ -85,27 +85,33 @@ TEST_F(ConfParserTest, Empty)
   EXPECT_EQ(pmanConf.port(), PORT_DEFAULT);
   EXPECT_TRUE(parser->programNames().empty());
   EXPECT_TRUE(parser->programConfs().empty());
+
+  std::string c = pwd();
+  stashDir();
+  pmanConf.chdir();
+  EXPECT_EQ(pwd(), c);
+  popDir();
 }
 
 TEST_F(ConfParserTest, ParsePmanSection)
 {
   parse(
     "[pman]\n"
-    "logfile=test_logfile\n"
-    "pidfile=test_pidfile\n"
-    "directory=/\n"
+    "logfile=/tmp/test_logfile\n"
+    "pidfile=/tmp/test_pidfile\n"
+    "directory=/dev\n"
     "port=127.0.0.1:50000\n"
   );
   EXPECT_FALSE(parser->ParseError());
   PmanConf pmanConf = parser->pmanConf();
-  EXPECT_EQ(pmanConf.pidfile(), "test_pidfile");
+  EXPECT_EQ(pmanConf.pidfile(), "/tmp/test_pidfile");
   EXPECT_EQ(pmanConf.port(), "127.0.0.1:50000");
   EXPECT_TRUE(parser->programNames().empty());
   EXPECT_TRUE(parser->programConfs().empty());
 
   stashDir();
   EXPECT_EQ(pmanConf.chdir(), 0);
-  EXPECT_EQ(pwd(), "/");
+  EXPECT_EQ(pwd(), "/dev");
   popDir();
 
   stashStd();
@@ -114,8 +120,8 @@ TEST_F(ConfParserTest, ParsePmanSection)
   std::cerr << "b" << std::flush;
   popStd();
 
-  EXPECT_EQ(readFile("test_logfile"), "ab");
-  unlink("test_logfile");
+  EXPECT_EQ(readFile("/tmp/test_logfile"), "ab");
+  unlink("/tmp/test_logfile");
 }
 
 TEST_F(ConfParserTest, ParseProgramSection)

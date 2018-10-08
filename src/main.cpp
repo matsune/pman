@@ -57,7 +57,7 @@ int killServer(PmanConf pmanConf)
   kill(pid, SIGTERM);
   waitpid(pid, 0, 0);
   pidFile.remove();
-  cout << "killed pman daemon." << endl;
+  cout << "killed daemon (pid: " << pid << ")" << endl;
   return 0;
 }
 
@@ -92,6 +92,23 @@ int main(int argc, char *argv[])
 {
   CmdParser cmdParser(argc, argv);
   cmdParser.parse();
+
+  if (cmdParser.command() == ECHO) {
+    cout <<
+      "[pman]\n"
+      "pidfile=/tmp/pman.pid \t; pman daemon's pidfile\n"
+      "logfile=/tmp/pman.log \t; pman daemon's logfile\n"
+      "port=127.0.0.1:50010  \t; gRPC server port\n"
+      "directory=/tmp        \t; default is current dir\n"
+      "\n"
+      "[program:sample]\n"
+      "command=/bin/ls               \t; program command\n"
+      "stdout=/tmp/sample_stdout.log \t; program stdout logfile (default: /tmp/${program name}_stdout.log)\n"
+      "stderr=/tmp/sample_stderr.log \t; program stderr logfile (default: /tmp/${program name}_stderr.log)\n"
+      "autorestart=true              \t; automatically restart if exited unexpectedly\n"
+      "autostart=true                \t; start program on daemon's startup" << endl;
+    return 0;
+  }
 
   ConfParser confParser(cmdParser.conffile());
   if (confParser.ParseError()) {

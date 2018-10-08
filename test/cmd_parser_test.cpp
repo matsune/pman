@@ -177,6 +177,13 @@ TEST_F(CmdParserTest, Kill)
   EXPECT_EQ(cmd->command(), KILL);
 }
 
+TEST_F(CmdParserTest, Echo)
+{
+  makeArgs({ "pman", "echo" });
+  parse();
+  EXPECT_EQ(cmd->command(), ECHO);
+}
+
 TEST_F(CmdParserTest, UnknownOptions)
 {
   makeArgs({ "pman", "-i", "aaa" });

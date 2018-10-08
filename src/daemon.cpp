@@ -33,7 +33,7 @@ void Daemon::daemonize()
   }
 
   umask(0);
-  if (conf_.chdir() < 0) HANDLE_ERROR("chdir");
+  conf_.chdir();
   if (setsid() < 0) HANDLE_ERROR("setsid");
 
   conf_.setLogfile();

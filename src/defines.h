@@ -11,11 +11,11 @@
 
 // configuration keys and default values
 #define PID_FILE_KEY "pidfile"
-#define PID_FILE_DEFAULT "pman.pid"
+#define PID_FILE_DEFAULT "/tmp/pman.pid"
 #define LOG_FILE_KEY "logfile"
-#define DAEMON_LOG_DEFAULT "/dev/null"
+#define DAEMON_LOG_DEFAULT "/tmp/pman.log"
 #define DIR_KEY "directory"
-#define DIR_DEFAULT "/tmp"
+#define DIR_DEFAULT ""
 #define PORT_KEY "port"
 #define PORT_DEFAULT "127.0.0.1:50010"
 
